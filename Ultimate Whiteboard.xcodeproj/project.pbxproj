@@ -1,0 +1,453 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		97631F211987730F007CA49A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97631F201987730F007CA49A /* Foundation.framework */; };
+		97631F231987730F007CA49A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97631F221987730F007CA49A /* CoreGraphics.framework */; };
+		97631F251987730F007CA49A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97631F241987730F007CA49A /* UIKit.framework */; };
+		97631F2B1987730F007CA49A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 97631F291987730F007CA49A /* InfoPlist.strings */; };
+		97631F2D1987730F007CA49A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 97631F2C1987730F007CA49A /* main.m */; };
+		97631F311987730F007CA49A /* HPDAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 97631F301987730F007CA49A /* HPDAppDelegate.m */; };
+		97631F331987730F007CA49A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97631F321987730F007CA49A /* Images.xcassets */; };
+		97631F3A1987730F007CA49A /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97631F391987730F007CA49A /* XCTest.framework */; };
+		97631F3B1987730F007CA49A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97631F201987730F007CA49A /* Foundation.framework */; };
+		97631F3C1987730F007CA49A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97631F241987730F007CA49A /* UIKit.framework */; };
+		97631F441987730F007CA49A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 97631F421987730F007CA49A /* InfoPlist.strings */; };
+		97631F461987730F007CA49A /* Ultimate_WhiteboardTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 97631F451987730F007CA49A /* Ultimate_WhiteboardTests.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		97631F3D1987730F007CA49A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97631F151987730F007CA49A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 97631F1C1987730F007CA49A;
+			remoteInfo = "Ultimate Whiteboard";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		97631F1D1987730F007CA49A /* Ultimate Whiteboard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Ultimate Whiteboard.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		97631F201987730F007CA49A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		97631F221987730F007CA49A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		97631F241987730F007CA49A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		97631F281987730F007CA49A /* Ultimate Whiteboard-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Ultimate Whiteboard-Info.plist"; sourceTree = "<group>"; };
+		97631F2A1987730F007CA49A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		97631F2C1987730F007CA49A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		97631F2E1987730F007CA49A /* Ultimate Whiteboard-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Ultimate Whiteboard-Prefix.pch"; sourceTree = "<group>"; };
+		97631F2F1987730F007CA49A /* HPDAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HPDAppDelegate.h; sourceTree = "<group>"; };
+		97631F301987730F007CA49A /* HPDAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HPDAppDelegate.m; sourceTree = "<group>"; };
+		97631F321987730F007CA49A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		97631F381987730F007CA49A /* Ultimate WhiteboardTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Ultimate WhiteboardTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		97631F391987730F007CA49A /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		97631F411987730F007CA49A /* Ultimate WhiteboardTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Ultimate WhiteboardTests-Info.plist"; sourceTree = "<group>"; };
+		97631F431987730F007CA49A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		97631F451987730F007CA49A /* Ultimate_WhiteboardTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Ultimate_WhiteboardTests.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		97631F1A1987730F007CA49A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				97631F231987730F007CA49A /* CoreGraphics.framework in Frameworks */,
+				97631F251987730F007CA49A /* UIKit.framework in Frameworks */,
+				97631F211987730F007CA49A /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		97631F351987730F007CA49A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				97631F3A1987730F007CA49A /* XCTest.framework in Frameworks */,
+				97631F3C1987730F007CA49A /* UIKit.framework in Frameworks */,
+				97631F3B1987730F007CA49A /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		97631F141987730F007CA49A = {
+			isa = PBXGroup;
+			children = (
+				97631F261987730F007CA49A /* Ultimate Whiteboard */,
+				97631F3F1987730F007CA49A /* Ultimate WhiteboardTests */,
+				97631F1F1987730F007CA49A /* Frameworks */,
+				97631F1E1987730F007CA49A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		97631F1E1987730F007CA49A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				97631F1D1987730F007CA49A /* Ultimate Whiteboard.app */,
+				97631F381987730F007CA49A /* Ultimate WhiteboardTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		97631F1F1987730F007CA49A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				97631F201987730F007CA49A /* Foundation.framework */,
+				97631F221987730F007CA49A /* CoreGraphics.framework */,
+				97631F241987730F007CA49A /* UIKit.framework */,
+				97631F391987730F007CA49A /* XCTest.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		97631F261987730F007CA49A /* Ultimate Whiteboard */ = {
+			isa = PBXGroup;
+			children = (
+				97631F2F1987730F007CA49A /* HPDAppDelegate.h */,
+				97631F301987730F007CA49A /* HPDAppDelegate.m */,
+				97631F321987730F007CA49A /* Images.xcassets */,
+				97631F271987730F007CA49A /* Supporting Files */,
+			);
+			path = "Ultimate Whiteboard";
+			sourceTree = "<group>";
+		};
+		97631F271987730F007CA49A /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				97631F281987730F007CA49A /* Ultimate Whiteboard-Info.plist */,
+				97631F291987730F007CA49A /* InfoPlist.strings */,
+				97631F2C1987730F007CA49A /* main.m */,
+				97631F2E1987730F007CA49A /* Ultimate Whiteboard-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		97631F3F1987730F007CA49A /* Ultimate WhiteboardTests */ = {
+			isa = PBXGroup;
+			children = (
+				97631F451987730F007CA49A /* Ultimate_WhiteboardTests.m */,
+				97631F401987730F007CA49A /* Supporting Files */,
+			);
+			path = "Ultimate WhiteboardTests";
+			sourceTree = "<group>";
+		};
+		97631F401987730F007CA49A /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				97631F411987730F007CA49A /* Ultimate WhiteboardTests-Info.plist */,
+				97631F421987730F007CA49A /* InfoPlist.strings */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		97631F1C1987730F007CA49A /* Ultimate Whiteboard */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 97631F491987730F007CA49A /* Build configuration list for PBXNativeTarget "Ultimate Whiteboard" */;
+			buildPhases = (
+				97631F191987730F007CA49A /* Sources */,
+				97631F1A1987730F007CA49A /* Frameworks */,
+				97631F1B1987730F007CA49A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Ultimate Whiteboard";
+			productName = "Ultimate Whiteboard";
+			productReference = 97631F1D1987730F007CA49A /* Ultimate Whiteboard.app */;
+			productType = "com.apple.product-type.application";
+		};
+		97631F371987730F007CA49A /* Ultimate WhiteboardTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 97631F4C1987730F007CA49A /* Build configuration list for PBXNativeTarget "Ultimate WhiteboardTests" */;
+			buildPhases = (
+				97631F341987730F007CA49A /* Sources */,
+				97631F351987730F007CA49A /* Frameworks */,
+				97631F361987730F007CA49A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				97631F3E1987730F007CA49A /* PBXTargetDependency */,
+			);
+			name = "Ultimate WhiteboardTests";
+			productName = "Ultimate WhiteboardTests";
+			productReference = 97631F381987730F007CA49A /* Ultimate WhiteboardTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		97631F151987730F007CA49A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				CLASSPREFIX = HPD;
+				LastUpgradeCheck = 0510;
+				ORGANIZATIONNAME = "Hippo Design";
+				TargetAttributes = {
+					97631F371987730F007CA49A = {
+						TestTargetID = 97631F1C1987730F007CA49A;
+					};
+				};
+			};
+			buildConfigurationList = 97631F181987730F007CA49A /* Build configuration list for PBXProject "Ultimate Whiteboard" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 97631F141987730F007CA49A;
+			productRefGroup = 97631F1E1987730F007CA49A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				97631F1C1987730F007CA49A /* Ultimate Whiteboard */,
+				97631F371987730F007CA49A /* Ultimate WhiteboardTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		97631F1B1987730F007CA49A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				97631F2B1987730F007CA49A /* InfoPlist.strings in Resources */,
+				97631F331987730F007CA49A /* Images.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		97631F361987730F007CA49A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				97631F441987730F007CA49A /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		97631F191987730F007CA49A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				97631F2D1987730F007CA49A /* main.m in Sources */,
+				97631F311987730F007CA49A /* HPDAppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		97631F341987730F007CA49A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				97631F461987730F007CA49A /* Ultimate_WhiteboardTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		97631F3E1987730F007CA49A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 97631F1C1987730F007CA49A /* Ultimate Whiteboard */;
+			targetProxy = 97631F3D1987730F007CA49A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		97631F291987730F007CA49A /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				97631F2A1987730F007CA49A /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		97631F421987730F007CA49A /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				97631F431987730F007CA49A /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		97631F471987730F007CA49A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		97631F481987730F007CA49A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		97631F4A1987730F007CA49A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Ultimate Whiteboard/Ultimate Whiteboard-Prefix.pch";
+				INFOPLIST_FILE = "Ultimate Whiteboard/Ultimate Whiteboard-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		97631F4B1987730F007CA49A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Ultimate Whiteboard/Ultimate Whiteboard-Prefix.pch";
+				INFOPLIST_FILE = "Ultimate Whiteboard/Ultimate Whiteboard-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		97631F4D1987730F007CA49A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Ultimate Whiteboard.app/Ultimate Whiteboard";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Ultimate Whiteboard/Ultimate Whiteboard-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "Ultimate WhiteboardTests/Ultimate WhiteboardTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Debug;
+		};
+		97631F4E1987730F007CA49A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Ultimate Whiteboard.app/Ultimate Whiteboard";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Ultimate Whiteboard/Ultimate Whiteboard-Prefix.pch";
+				INFOPLIST_FILE = "Ultimate WhiteboardTests/Ultimate WhiteboardTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		97631F181987730F007CA49A /* Build configuration list for PBXProject "Ultimate Whiteboard" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				97631F471987730F007CA49A /* Debug */,
+				97631F481987730F007CA49A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		97631F491987730F007CA49A /* Build configuration list for PBXNativeTarget "Ultimate Whiteboard" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				97631F4A1987730F007CA49A /* Debug */,
+				97631F4B1987730F007CA49A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		97631F4C1987730F007CA49A /* Build configuration list for PBXNativeTarget "Ultimate WhiteboardTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				97631F4D1987730F007CA49A /* Debug */,
+				97631F4E1987730F007CA49A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 97631F151987730F007CA49A /* Project object */;
+}
