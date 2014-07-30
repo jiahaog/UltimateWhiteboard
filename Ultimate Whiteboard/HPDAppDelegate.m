@@ -7,6 +7,7 @@
 //
 
 #import "HPDAppDelegate.h"
+#import "HPDFieldViewController.h"
 
 @implementation HPDAppDelegate
 
@@ -14,6 +15,10 @@
 {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
+    
+    
+    HPDFieldViewController *fieldViewController = [[HPDFieldViewController alloc] init];
+    self.window.rootViewController = fieldViewController;
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
     return YES;

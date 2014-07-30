@@ -19,6 +19,9 @@
 		97631F3C1987730F007CA49A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97631F241987730F007CA49A /* UIKit.framework */; };
 		97631F441987730F007CA49A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 97631F421987730F007CA49A /* InfoPlist.strings */; };
 		97631F461987730F007CA49A /* Ultimate_WhiteboardTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 97631F451987730F007CA49A /* Ultimate_WhiteboardTests.m */; };
+		97631F55198773B0007CA49A /* HPDFieldView.m in Sources */ = {isa = PBXBuildFile; fileRef = 97631F54198773B0007CA49A /* HPDFieldView.m */; };
+		97631F58198773CB007CA49A /* HPDFieldViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 97631F57198773CB007CA49A /* HPDFieldViewController.m */; };
+		97F76AC71988820B00A8B450 /* HPDMarker.m in Sources */ = {isa = PBXBuildFile; fileRef = 97F76AC61988820B00A8B450 /* HPDMarker.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +51,12 @@
 		97631F411987730F007CA49A /* Ultimate WhiteboardTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Ultimate WhiteboardTests-Info.plist"; sourceTree = "<group>"; };
 		97631F431987730F007CA49A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		97631F451987730F007CA49A /* Ultimate_WhiteboardTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Ultimate_WhiteboardTests.m; sourceTree = "<group>"; };
+		97631F53198773B0007CA49A /* HPDFieldView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPDFieldView.h; sourceTree = "<group>"; };
+		97631F54198773B0007CA49A /* HPDFieldView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPDFieldView.m; sourceTree = "<group>"; };
+		97631F56198773CB007CA49A /* HPDFieldViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPDFieldViewController.h; sourceTree = "<group>"; };
+		97631F57198773CB007CA49A /* HPDFieldViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPDFieldViewController.m; sourceTree = "<group>"; };
+		97F76AC51988820B00A8B450 /* HPDMarker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HPDMarker.h; path = ../HPDMarker.h; sourceTree = "<group>"; };
+		97F76AC61988820B00A8B450 /* HPDMarker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HPDMarker.m; path = ../HPDMarker.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,8 +116,9 @@
 		97631F261987730F007CA49A /* Ultimate Whiteboard */ = {
 			isa = PBXGroup;
 			children = (
-				97631F2F1987730F007CA49A /* HPDAppDelegate.h */,
-				97631F301987730F007CA49A /* HPDAppDelegate.m */,
+				97631F5A198773DA007CA49A /* Controller */,
+				97631F59198773D2007CA49A /* View */,
+				97631F5219877373007CA49A /* Model */,
 				97631F321987730F007CA49A /* Images.xcassets */,
 				97631F271987730F007CA49A /* Supporting Files */,
 			);
@@ -118,6 +128,8 @@
 		97631F271987730F007CA49A /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				97631F2F1987730F007CA49A /* HPDAppDelegate.h */,
+				97631F301987730F007CA49A /* HPDAppDelegate.m */,
 				97631F281987730F007CA49A /* Ultimate Whiteboard-Info.plist */,
 				97631F291987730F007CA49A /* InfoPlist.strings */,
 				97631F2C1987730F007CA49A /* main.m */,
@@ -142,6 +154,33 @@
 				97631F421987730F007CA49A /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		97631F5219877373007CA49A /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				97F76AC51988820B00A8B450 /* HPDMarker.h */,
+				97F76AC61988820B00A8B450 /* HPDMarker.m */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
+		97631F59198773D2007CA49A /* View */ = {
+			isa = PBXGroup;
+			children = (
+				97631F53198773B0007CA49A /* HPDFieldView.h */,
+				97631F54198773B0007CA49A /* HPDFieldView.m */,
+			);
+			name = View;
+			sourceTree = "<group>";
+		};
+		97631F5A198773DA007CA49A /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				97631F56198773CB007CA49A /* HPDFieldViewController.h */,
+				97631F57198773CB007CA49A /* HPDFieldViewController.m */,
+			);
+			name = Controller;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -240,7 +279,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				97F76AC71988820B00A8B450 /* HPDMarker.m in Sources */,
+				97631F55198773B0007CA49A /* HPDFieldView.m in Sources */,
 				97631F2D1987730F007CA49A /* main.m in Sources */,
+				97631F58198773CB007CA49A /* HPDFieldViewController.m in Sources */,
 				97631F311987730F007CA49A /* HPDAppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -438,6 +480,7 @@
 				97631F4B1987730F007CA49A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		97631F4C1987730F007CA49A /* Build configuration list for PBXNativeTarget "Ultimate WhiteboardTests" */ = {
 			isa = XCConfigurationList;
@@ -446,6 +489,7 @@
 				97631F4E1987730F007CA49A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
