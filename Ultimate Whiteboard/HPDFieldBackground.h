@@ -1,18 +1,15 @@
 //
-//  HPDFieldView.h
+//  HPDFieldBackground.h
 //  Ultimate Whiteboard
 //
-//  Created by Jia Hao on 29/7/14.
+//  Created by Jia Hao on 30/7/14.
 //  Copyright (c) 2014 Hippo Design. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
 
-@interface HPDFieldView : UIView
+@interface HPDFieldBackground : UIView
 
 @property (nonatomic) CGRect fieldBounds;
-
-
-- (id)initWithFrame:(CGRect)frame fieldBounds:(CGRect)fieldBounds;
 
 @end

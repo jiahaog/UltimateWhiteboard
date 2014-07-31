@@ -22,6 +22,7 @@
 		97631F55198773B0007CA49A /* HPDFieldView.m in Sources */ = {isa = PBXBuildFile; fileRef = 97631F54198773B0007CA49A /* HPDFieldView.m */; };
 		97631F58198773CB007CA49A /* HPDFieldViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 97631F57198773CB007CA49A /* HPDFieldViewController.m */; };
 		97F76AC71988820B00A8B450 /* HPDMarker.m in Sources */ = {isa = PBXBuildFile; fileRef = 97F76AC61988820B00A8B450 /* HPDMarker.m */; };
+		97F76ACA1988A28600A8B450 /* HPDFieldBackground.m in Sources */ = {isa = PBXBuildFile; fileRef = 97F76AC91988A28600A8B450 /* HPDFieldBackground.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +58,8 @@
 		97631F57198773CB007CA49A /* HPDFieldViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPDFieldViewController.m; sourceTree = "<group>"; };
 		97F76AC51988820B00A8B450 /* HPDMarker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HPDMarker.h; path = ../HPDMarker.h; sourceTree = "<group>"; };
 		97F76AC61988820B00A8B450 /* HPDMarker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HPDMarker.m; path = ../HPDMarker.m; sourceTree = "<group>"; };
+		97F76AC81988A28600A8B450 /* HPDFieldBackground.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPDFieldBackground.h; sourceTree = "<group>"; };
+		97F76AC91988A28600A8B450 /* HPDFieldBackground.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPDFieldBackground.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -170,6 +173,8 @@
 			children = (
 				97631F53198773B0007CA49A /* HPDFieldView.h */,
 				97631F54198773B0007CA49A /* HPDFieldView.m */,
+				97F76AC81988A28600A8B450 /* HPDFieldBackground.h */,
+				97F76AC91988A28600A8B450 /* HPDFieldBackground.m */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -280,6 +285,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				97F76AC71988820B00A8B450 /* HPDMarker.m in Sources */,
+				97F76ACA1988A28600A8B450 /* HPDFieldBackground.m in Sources */,
 				97631F55198773B0007CA49A /* HPDFieldView.m in Sources */,
 				97631F2D1987730F007CA49A /* main.m in Sources */,
 				97631F58198773CB007CA49A /* HPDFieldViewController.m in Sources */,

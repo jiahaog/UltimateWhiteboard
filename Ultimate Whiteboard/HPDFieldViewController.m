@@ -8,8 +8,12 @@
 
 #import "HPDFieldViewController.h"
 #import "HPDFieldView.h"
+#import "HPDFieldBackground.h"
 
 @interface HPDFieldViewController ()
+
+@property (nonatomic) HPDFieldView *fieldView;
+@property (nonatomic) HPDFieldBackground *fieldBackground;
 
 @end
 
@@ -28,6 +32,7 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
 }
 
 - (void)didReceiveMemoryWarning
@@ -39,12 +44,36 @@
 
 - (void)loadView
 {
-    self.view = [[HPDFieldView alloc] initWithFrame:CGRectZero];
+
+
+    
+    HPDFieldBackground *fieldBackground = [[HPDFieldBackground alloc] init];
+    self.fieldBackground = fieldBackground;
+    self.view = self.fieldBackground;
+
+
 }
 
 - (BOOL)prefersStatusBarHidden {
     return YES;
 }
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    }
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    HPDFieldView *fieldView = [[HPDFieldView alloc] initWithFrame:self.view.bounds fieldBounds:self.fieldBackground.fieldBounds];
+    self.fieldView = fieldView;
+    [self.view addSubview:self.fieldView];
+//    self.fieldView.fieldBounds = self.fieldBackground.fieldBounds;
+    [self.fieldView setNeedsDisplay];
+    
+    
+
+}
+
 
 /*
 #pragma mark - Navigation
