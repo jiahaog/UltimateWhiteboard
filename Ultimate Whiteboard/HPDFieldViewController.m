@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 Hippo Design. All rights reserved.
 //
 
+//#import <POP/POP.h>
+
 #import "HPDFieldViewController.h"
 #import "HPDFieldView.h"
 #import "HPDFieldBackground.h"
@@ -65,6 +67,12 @@
 - (void)viewDidAppear:(BOOL)animated
 {
     HPDFieldView *fieldView = [[HPDFieldView alloc] initWithFrame:self.view.bounds fieldBounds:self.fieldBackground.fieldBounds];
+    
+//    POPSpringAnimation *anim = [POPSpringAnimation animationWithPropertyNamed:kPOPLayerBounds];
+//    anim.toValue = [NSValue valueWithCGRect:CGRectMake(0, 0, 400, 400)];
+//    [fieldView pop_addAnimation:anim forKey:@"myKey"];
+    
+
     self.fieldView = fieldView;
     [self.view addSubview:self.fieldView];
 //    self.fieldView.fieldBounds = self.fieldBackground.fieldBounds;
