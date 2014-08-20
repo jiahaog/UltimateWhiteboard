@@ -14,6 +14,10 @@
 {
     self = [super init];
     _markerType = markerType;
+    
+    NSUUID *uuid = [[NSUUID alloc] init];
+    NSString *key = [uuid UUIDString];
+    _markerKey = key;
     return self;
 }
 

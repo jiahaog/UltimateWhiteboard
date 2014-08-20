@@ -18,6 +18,7 @@ typedef NS_ENUM(char, markerType) {
 
 @property (nonatomic) CGPoint markerPosition;
 @property (nonatomic) int markerType;
+@property (nonatomic, copy) NSString *markerKey;
 
 
 - (instancetype)initWithMarkerType:(char)markerType;

@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 Hippo Design. All rights reserved.
 //
 
-//#import <POP/POP.h>
+#import <POP/POP.h>
 
 #import "HPDFieldView.h"
 #import "HPDMarker.h"
@@ -16,12 +16,22 @@
 
 //@property (nonatomic, strong) HPDMarker *currentMarker;
 @property (nonatomic, strong) NSMutableArray *allMarkers;
-@property (nonatomic, strong) NSDictionary *markerWidths;
+
 @property (nonatomic) HPDMarker *selectedMarker;
 @property (nonatomic) NSValue *selectionBox;
 @property (nonatomic) NSMutableArray *selectedMarkers;
 
 @property (nonatomic) CGPoint touchDownPosition;
+
+@property (nonatomic) NSMutableDictionary *markerCALayerArray;
+
+
+// Constants
+@property (nonatomic) float selectedMarkerRadiusMultiplier;
+@property (nonatomic, strong) NSDictionary *markerWidths;
+
+// BOols
+@property (nonatomic) BOOL animating;
 
 
 @end
@@ -36,12 +46,23 @@
     if (self) {
         // Initialization code
         self.allMarkers = [[NSMutableArray alloc] init];
-        self.markerWidths = @{@"player":@10, @"disc":@10};
+        self.markerCALayerArray = [[NSMutableDictionary alloc] init];
+
         self.opaque = NO;
         self.fieldBounds = fieldBounds;
         [self playerPositionEndzoneLines];
 //        self.backgroundColor = [UIColor greenColor];
+
         
+        // Set constants
+        self.markerWidths = @{@"player":@10, @"disc":@10};
+        self.selectedMarkerRadiusMultiplier = 1.5;
+        
+        self.animating = NO;
+        
+        
+        
+        // Parallax
         UIInterpolatingMotionEffect *motionEffect;
         float motionEffectRelativeValue = 20;
         motionEffect = [[UIInterpolatingMotionEffect alloc] initWithKeyPath:@"center.x" type:UIInterpolatingMotionEffectTypeTiltAlongHorizontalAxis];
@@ -103,6 +124,14 @@
             [self strokeMarker:marker selected:YES];
         }
     }
+    
+    if (self.selectedMarker) {
+        if (!self.animating) {
+            [self strokeMarker:self.selectedMarker selected:YES];
+        }
+
+    }
+//
 }
 
 
@@ -110,6 +139,9 @@
 
 - (void)strokeMarker:(HPDMarker *)marker selected:(BOOL)selected
 {
+    // Disable laggy stuff
+    [CATransaction setDisableActions:YES];
+
     HPDMarker *currentMarker = marker;
     
     UIColor *markerColor = nil;
@@ -143,16 +175,46 @@
     if (!selected) {
         multiplier = 1.0;
     } else {
-        multiplier = 1.5;
+        multiplier = self.selectedMarkerRadiusMultiplier;
     }
     CGFloat markerRadiusCGFloat = [markerRadius floatValue] * multiplier;
 
     UIBezierPath *bezierPath = [UIBezierPath bezierPathWithArcCenter:currentMarker.markerPosition radius:markerRadiusCGFloat startAngle:0 endAngle:M_PI*2.0 clockwise:YES];
-    bezierPath.lineWidth = 2;
-    [markerStroke setStroke];
-    [markerColor setFill];
-    [bezierPath fill];
-    [bezierPath stroke];
+//    bezierPath.lineWidth = 2;
+//    [markerStroke setStroke];
+//    [markerColor setFill];
+//    [bezierPath fill];
+//    [bezierPath stroke];
+
+    NSString *markerUUID = marker.markerKey;
+
+    CAShapeLayer *markerLayer = [self.markerCALayerArray objectForKey:markerUUID];
+    if (!markerLayer) {
+        CAShapeLayer *markerLayer = [CAShapeLayer layer];
+        markerLayer.frame = bezierPath.bounds;
+
+        CGPoint markerLayerCenter = CGPointMake(markerLayer.frame.size.width/2.0, markerLayer.frame.size.height/2.0);
+        
+        UIBezierPath *secondPath = [UIBezierPath bezierPathWithArcCenter:markerLayerCenter radius:markerRadiusCGFloat startAngle:0 endAngle:M_PI*2.0 clockwise:YES];
+        markerLayer.path = secondPath.CGPath;
+//        markerLayer.path = bezierPath.CGPath;
+        markerLayer.backgroundColor = [UIColor purpleColor].CGColor;
+        markerLayer.strokeColor = markerStroke.CGColor;
+        markerLayer.fillColor = markerColor.CGColor;
+        markerLayer.lineWidth = 2;
+        [self.layer addSublayer:markerLayer];
+        [self.markerCALayerArray setObject:markerLayer forKey:markerUUID];
+    } else {
+        markerLayer.frame = bezierPath.bounds;
+        CGPoint markerLayerCenter = CGPointMake(markerLayer.frame.size.width/2.0, markerLayer.frame.size.height/2.0);
+        UIBezierPath *secondPath = [UIBezierPath bezierPathWithArcCenter:markerLayerCenter radius:markerRadiusCGFloat startAngle:0 endAngle:M_PI*2.0 clockwise:YES];
+        markerLayer.path = secondPath.CGPath;
+//        markerLayer.path = bezierPath.CGPath;
+    }
+
+    
+    
+    
     
 }
 
@@ -282,6 +344,12 @@
     if (!self.selectedMarkers) {
         HPDMarker *selectedMarker = [self markerAtPoint:location];
         self.selectedMarker = selectedMarker;
+        [self.allMarkers removeObject:selectedMarker];
+        
+        // animation
+        [self animateMarker:self.selectedMarker];
+
+        
     } else {
         self.touchDownPosition = location;
     }
@@ -374,9 +442,31 @@
 // Clear selection
 - (void)tap
 {
-    NSLog(@"tap");
     self.selectedMarkers = nil;
     [self setNeedsDisplay];
+}
+
+#pragma mark - Animation Methods
+
+- (void)animateMarker:(HPDMarker *)marker
+{
+    CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"transform"];
+    animation.fromValue = [NSValue valueWithCATransform3D:CATransform3DIdentity];
+    animation.toValue = [NSValue valueWithCATransform3D:CATransform3DMakeScale(self.selectedMarkerRadiusMultiplier, self.selectedMarkerRadiusMultiplier, 1.0)];
+    animation.removedOnCompletion = NO;
+    animation.delegate = self;
+
+    CAShapeLayer *markerLayer = [self.markerCALayerArray objectForKey:marker.markerKey];
+    [markerLayer addAnimation:animation forKey:nil];
+    self.animating = YES;
+    
+}
+
+- (void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag
+{
+    if (flag) {
+        self.animating = NO;
+    }
 }
 
 @end
