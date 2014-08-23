@@ -10,7 +10,7 @@
 
 @interface HPDFieldView : UIView
 
-@property (nonatomic) CGRect fieldBounds;
+
 
 
 - (id)initWithFrame:(CGRect)frame fieldBounds:(CGRect)fieldBounds;

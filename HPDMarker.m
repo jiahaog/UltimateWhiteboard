@@ -25,14 +25,14 @@
     
     
     _viewToDrawOn = view;
-    [self updateMarkerLayer];
+    [self updateMarkerLayerDisableCATransaction:YES];
     [self.viewToDrawOn.layer addSublayer:self.markerCALayer];
     
     return self;
 }
 
 
-- (void)updateMarkerLayer
+- (void)updateMarkerLayerDisableCATransaction:(BOOL)disableCATransaction
 {
     
 //    if (!self.markerCALayer) {
@@ -42,19 +42,48 @@
 //    }
 //    UIBezierPath *markerPath = [UIBezierPath bezierPathWithArcCenter:self.markerPosition radius:self.markerWidth startAngle:0 endAngle:M_PI*2.0 clockwise:YES];
 //    self.markerCALayer.path = markerPath.CGPath;
-    [CATransaction setDisableActions:YES];
+    
+    if (disableCATransaction) {
+        [CATransaction setDisableActions:YES];
+    }
+
     if (!self.markerCALayer) {
         self.markerCALayer = [CALayer layer];
 
-        self.markerCALayer.backgroundColor = [UIColor blueColor].CGColor;
+        UIColor *markerColor = nil;
+        UIColor *markerStroke = [UIColor clearColor];
+        
+        
+        switch (self.markerType) {
+            case HPDMarkerTypeBluePlayer:
+                markerColor = [UIColor blueColor];
+                break;
+            case HPDMarkerTypeRedPlayer:
+                markerColor = [UIColor redColor];
+                break;
+            case HPDMarkerTypeDisc:
+                markerColor = [UIColor whiteColor];
+                markerStroke = [UIColor blackColor];
+                self.markerCALayer.borderWidth = 1.5;
+                self.markerCALayer.borderColor = markerStroke.CGColor;
+                break;
+            default:
+                break;
+        }
+
+        
+        
+        self.markerCALayer.backgroundColor = markerColor.CGColor;
     }
     NSLog(@"Updating Position to: %@", NSStringFromCGPoint(self.markerPosition));
 
     self.markerCALayer.cornerRadius = self.markerWidth/2.0;
     self.markerCALayer.bounds = CGRectMake(0, 0, self.markerWidth, self.markerWidth);
     self.markerCALayer.position = self.markerPosition;
-    [CATransaction setDisableActions:NO];
     
+    if (disableCATransaction) {
+        [CATransaction setDisableActions:NO];
+    }
 }
 
 

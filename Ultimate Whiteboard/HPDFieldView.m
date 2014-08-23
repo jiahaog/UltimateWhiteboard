@@ -19,8 +19,17 @@
 @property (nonatomic) NSMutableArray *allMarkers;
 @property (nonatomic) NSMutableArray *selectedMarkers;
 
+// Properties for field dimensions
+@property (nonatomic) CGRect fieldBounds;
+
 // properties to aid in touch tracking
 @property (nonatomic) CGPoint touchDownPosition;
+@property (nonatomic) NSValue *selectionBox;
+@property (nonatomic) CALayer *selectionBoxLayer;
+
+// Options
+@property (nonatomic) int playersPerSide;
+
 
 
 @end
@@ -34,14 +43,45 @@
     self = [super initWithFrame:frame];
     if (self) {
         
-        _allMarkers = [[NSMutableArray alloc] init];
+        // Default options here
+        _playersPerSide = 7;
         
-        HPDMarker *newMarker = [[HPDMarker alloc] initWithMarkerType:HPDMarkerTypeBluePlayer viewToDrawOn:self];
-        [_allMarkers addObject:newMarker];
+        
+        
+        // Need this to show field background
         self.opaque = NO;
         
-        newMarker.markerPosition = CGPointMake(200, 200);
-        [newMarker updateMarkerLayer];
+        // assigns field dimensions to properties
+        _fieldBounds = fieldBounds;
+        
+        
+
+        
+
+        
+        
+        
+        // Create buttons to allow changing of formations
+        
+        UIButton *button1 = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, 50, 50)];
+        button1.backgroundColor = [UIColor orangeColor];
+        [button1 addTarget:self action:@selector(playerPositionEndzoneLines) forControlEvents:UIControlEventTouchUpInside];
+        [self addSubview:button1];
+        
+        UIButton *button2 = [[UIButton alloc] initWithFrame:CGRectMake(60, 10, 50, 50)];
+        button2.backgroundColor = [UIColor purpleColor];
+        [button2 addTarget:self action:@selector(playerPositionVerticalStack) forControlEvents:UIControlEventTouchUpInside];
+        [self addSubview:button2];
+        
+        
+        UIPinchGestureRecognizer *pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self
+                                                                                              action:@selector(pinch:)];
+        [self addGestureRecognizer:pinchRecognizer];
+        
+        UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tap)];
+        [self addGestureRecognizer:tapRecognizer];
+        
+        
     }
     return self;
 }
@@ -54,6 +94,120 @@
 //
 ////
 //}
+
+#pragma mark - Player Positions
+
+- (void)initMarkers
+{
+    self.allMarkers = [[NSMutableArray alloc] init];
+    
+    for (int i = 1; i <= self.playersPerSide; i++) {
+        HPDMarker *newBluePlayer = [[HPDMarker alloc] initWithMarkerType:HPDMarkerTypeBluePlayer viewToDrawOn:self];
+        [self.allMarkers addObject:newBluePlayer];
+        HPDMarker *newRedPlayer = [[HPDMarker alloc] initWithMarkerType:HPDMarkerTypeRedPlayer viewToDrawOn:self];
+        [self.allMarkers addObject:newRedPlayer];
+    }
+    
+    HPDMarker *disc = [[HPDMarker alloc] initWithMarkerType:HPDMarkerTypeDisc viewToDrawOn:self];
+    [self.allMarkers addObject:disc];
+
+}
+
+- (void)playerPositionEndzoneLines
+{
+    
+    if (!self.allMarkers) {
+        [self initMarkers];
+    }
+    
+    [self deselectMarkers];
+    
+    CGFloat interval = self.fieldBounds.size.width/(self.playersPerSide + 1);
+    
+    int blueCounter = 0;
+    int redCounter = 0;
+    for (HPDMarker *marker in self.allMarkers) {
+        if (marker.markerType == HPDMarkerTypeBluePlayer) {
+            blueCounter ++;
+            marker.markerPosition = CGPointMake(blueCounter *interval + self.fieldBounds.origin.x, self.fieldBounds.size.height / 110 * 87 + self.fieldBounds.origin.y);
+        } else if (marker.markerType == HPDMarkerTypeRedPlayer) {
+            redCounter ++;
+            marker.markerPosition = CGPointMake(redCounter * interval + self.fieldBounds.origin.x, self.fieldBounds.size.height/110 * 23 + self.fieldBounds.origin.y);
+        } else if (marker.markerType == HPDMarkerTypeDisc) {
+            marker.markerPosition = CGPointMake(self.fieldBounds.origin.x + self.fieldBounds.size.width/2, self.fieldBounds.origin.y + self.fieldBounds.size.height/2);
+        }
+        [marker updateMarkerLayerDisableCATransaction:NO];
+        
+    }
+    
+}
+
+- (void)playerPositionVerticalStack
+{
+ 
+    if (!self.allMarkers) {
+        [self initMarkers];
+    }
+    
+    [self deselectMarkers];
+    
+    CGFloat centerX = self.fieldBounds.origin.x + self.fieldBounds.size.width/2.0;
+    CGFloat topEndzoneLineY = self.fieldBounds.origin.y + self.fieldBounds.size.height/110*23;
+    CGFloat bottomEndzoneLineY = self.fieldBounds.origin.y + self.fieldBounds.size.height/110*87;
+    CGFloat interval = (self.fieldBounds.size.height - 2*topEndzoneLineY)/ (7 + 1);
+    //    CGFloat topFirstPlayerY = topEndzoneLineY + interval;
+    
+    int blueCounter = 0;
+    int redCounter = 0;
+
+    HPDMarker *handler1;
+    HPDMarker *handler2;
+    
+    
+    for (HPDMarker *marker in self.allMarkers) {
+        
+        CGFloat markingDistance = marker.markerWidth*1.7;
+        CGFloat centerXDefenderPosition = centerX + markingDistance;
+        // Vertical and horizontal distances for markers positioned 45 degrees away
+        CGFloat distanceY = markingDistance*1/sqrtf(2);
+
+        
+        if (marker.markerType == HPDMarkerTypeBluePlayer) {
+            blueCounter ++;
+            if (blueCounter <= 5) {
+                CGFloat newMarkerY = topEndzoneLineY + blueCounter * interval;
+                marker.markerPosition = CGPointMake(centerX, newMarkerY);
+            } else if (blueCounter == 6) {
+                marker.markerPosition = CGPointMake(centerX, bottomEndzoneLineY);
+                handler1 = marker;
+            } else if (blueCounter == 7) {
+                CGPoint handler2Position = CGPointMake(handler1.markerPosition.x + distanceY*2, handler1.markerPosition.y + distanceY*2);
+                marker.markerPosition = handler2Position;
+                handler2 = marker;
+            }
+        }
+        
+        if (marker.markerType == HPDMarkerTypeRedPlayer) {
+            redCounter ++;
+            if (redCounter <= 5) {
+                CGFloat newMarkerY = topEndzoneLineY + redCounter * interval;
+                marker.markerPosition = CGPointMake(centerXDefenderPosition, newMarkerY);
+            } else if (redCounter == 6) {
+                
+                CGPoint position = CGPointMake(handler1.markerPosition.x-distanceY, handler1.markerPosition.y - distanceY);
+                marker.markerPosition = position;
+            } else if (redCounter == 7) {
+                CGPoint position = CGPointMake(handler2.markerPosition.x, handler2.markerPosition.y - markingDistance);
+                marker.markerPosition = position;
+            }
+        }
+        
+        [marker updateMarkerLayerDisableCATransaction:NO];
+        
+    }
+
+    
+}
 
 
 #pragma mark - Drawing Methods
@@ -103,7 +257,7 @@
         for (HPDMarker *marker in self.selectedMarkers) {
             CGPoint previousPosition = marker.markerPosition;
             marker.markerPosition = CGPointMake(previousPosition.x + movedDistance.width, previousPosition.y + movedDistance.height);
-            [marker updateMarkerLayer];
+            [marker updateMarkerLayerDisableCATransaction:YES];
             
         }
         self.touchDownPosition = location;
@@ -113,13 +267,88 @@
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    if (self.selectedMarkers) {
-        for (HPDMarker *marker in self.selectedMarkers) {
-            [self animateMarkerSelected:marker selected:NO];
+    [self deselectMarkers];
+}
+
+
+- (void)pinch:(UIGestureRecognizer *)gr
+{
+    CGPoint pointA;
+    CGPoint pointB;
+    
+    // Assign touches to points
+    if ([gr numberOfTouches] >= 2) {
+        pointA = [gr locationOfTouch:0 inView:self];
+        pointB = [gr locationOfTouch:1 inView:self];
+    }
+    
+    CGPoint topLeftCorner;
+    CGPoint bottomRightCorner;
+    
+    // Maps top left and bottom right to touches appropriately
+    if (hypot(pointA.x, pointB.y) > hypot(pointB.x, pointB.y)) {
+        topLeftCorner = pointB;
+        bottomRightCorner = pointA;
+    } else {
+        topLeftCorner = pointA;
+        bottomRightCorner = pointB;
+    }
+    
+    CGRect rect = CGRectMake(topLeftCorner.x, topLeftCorner.y, bottomRightCorner.x - topLeftCorner.x, bottomRightCorner.y - topLeftCorner.y);
+
+    
+    if ([gr numberOfTouches] >= 2 ) {
+        self.selectionBox = [NSValue valueWithCGRect:rect];
+        if (!self.selectionBoxLayer) {
+            self.selectionBoxLayer = [CALayer layer];
+            self.selectionBoxLayer.backgroundColor = [UIColor grayColor].CGColor;
+            self.selectionBoxLayer.opacity = 0.5;
+            [self.layer addSublayer:self.selectionBoxLayer];
+        }
+        
+    }
+    
+    if (self.selectionBoxLayer) {
+        [CATransaction setDisableActions:YES];
+        self.selectionBoxLayer.bounds = rect;
+        self.selectionBoxLayer.anchorPoint = CGPointMake(0, 0);
+        self.selectionBoxLayer.position = CGPointMake(topLeftCorner.x, topLeftCorner.y);
+        [CATransaction setDisableActions:NO];
+    }
+    
+    
+    
+    
+    if (gr.state == (UIGestureRecognizerStateEnded)) {
+        [self selection];
+        self.selectionBox = nil;
+        [self.selectionBoxLayer removeFromSuperlayer];
+        self.selectionBoxLayer = nil;
+    }
+}
+
+// Method to get markers within a selection box
+- (void)selection
+{
+    if (!self.selectedMarkers) {
+        self.selectedMarkers = [[NSMutableArray alloc] init];
+    }
+    
+    CGRect selectionBox = [self.selectionBox CGRectValue];
+    
+    for (HPDMarker *marker in self.allMarkers) {
+        if (CGRectContainsPoint(selectionBox, marker.markerPosition)) {
+            [self animateMarkerSelected:marker selected:YES];
+            [self.selectedMarkers addObject:marker];
         }
     }
-    self.selectedMarkers = nil;
 }
+
+- (void)tap
+{
+    [self deselectMarkers];
+}
+
 
 #pragma mark - Animation Methods
 
@@ -146,6 +375,17 @@
     CAAnimationGroup *animation = [CAAnimationGroup animation];
     animation.animations = [NSArray arrayWithObjects:scaleAnimation, opacityAnimation, nil];
     [marker.markerCALayer addAnimation:animation forKey:nil];
+
+}
+
+- (void)deselectMarkers
+{
+    if (self.selectedMarkers) {
+        for (HPDMarker *marker in self.selectedMarkers) {
+            [self animateMarkerSelected:marker selected:NO];
+        }
+    }
+    self.selectedMarkers = nil;
 
 }
 

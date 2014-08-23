@@ -27,7 +27,7 @@ typedef NS_ENUM(char, markerType) {
 // Designated Initiator
 - (instancetype)initWithMarkerType:(char)markerType viewToDrawOn:(UIView *)view;
 
-- (void)updateMarkerLayer;
+- (void)updateMarkerLayerDisableCATransaction:(BOOL)disableCATransaction;
 
 
 @end
