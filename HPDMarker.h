@@ -18,9 +18,16 @@ typedef NS_ENUM(char, markerType) {
 
 @property (nonatomic) CGPoint markerPosition;
 @property (nonatomic) int markerType;
-@property (nonatomic, copy) NSString *markerKey;
+
+// Drawing Properties
+@property (nonatomic) CALayer *markerCALayer;
+@property (nonatomic) CGFloat markerWidth;
 
 
-- (instancetype)initWithMarkerType:(char)markerType;
+// Designated Initiator
+- (instancetype)initWithMarkerType:(char)markerType viewToDrawOn:(UIView *)view;
+
+- (void)updateMarkerLayer;
+
 
 @end

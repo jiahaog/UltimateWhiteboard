@@ -14,24 +14,13 @@
 
 @interface HPDFieldView ()
 
-//@property (nonatomic, strong) HPDMarker *currentMarker;
-@property (nonatomic, strong) NSMutableArray *allMarkers;
 
-@property (nonatomic) HPDMarker *selectedMarker;
-@property (nonatomic) NSValue *selectionBox;
+// Storage for markers
+@property (nonatomic) NSMutableArray *allMarkers;
 @property (nonatomic) NSMutableArray *selectedMarkers;
 
+// properties to aid in touch tracking
 @property (nonatomic) CGPoint touchDownPosition;
-
-@property (nonatomic) NSMutableDictionary *markerCALayerArray;
-
-
-// Constants
-@property (nonatomic) float selectedMarkerRadiusMultiplier;
-@property (nonatomic, strong) NSDictionary *markerWidths;
-
-// BOols
-@property (nonatomic) BOOL animating;
 
 
 @end
@@ -44,429 +33,120 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        // Initialization code
-        self.allMarkers = [[NSMutableArray alloc] init];
-        self.markerCALayerArray = [[NSMutableDictionary alloc] init];
-
+        
+        _allMarkers = [[NSMutableArray alloc] init];
+        
+        HPDMarker *newMarker = [[HPDMarker alloc] initWithMarkerType:HPDMarkerTypeBluePlayer viewToDrawOn:self];
+        [_allMarkers addObject:newMarker];
         self.opaque = NO;
-        self.fieldBounds = fieldBounds;
-        [self playerPositionEndzoneLines];
-//        self.backgroundColor = [UIColor greenColor];
-
         
-        // Set constants
-        self.markerWidths = @{@"player":@10, @"disc":@10};
-        self.selectedMarkerRadiusMultiplier = 1.5;
-        
-        self.animating = NO;
-        
-        
-        
-        // Parallax
-        UIInterpolatingMotionEffect *motionEffect;
-        float motionEffectRelativeValue = 20;
-        motionEffect = [[UIInterpolatingMotionEffect alloc] initWithKeyPath:@"center.x" type:UIInterpolatingMotionEffectTypeTiltAlongHorizontalAxis];
-        motionEffect.minimumRelativeValue = @(-motionEffectRelativeValue);
-        motionEffect.maximumRelativeValue = @(motionEffectRelativeValue);
-        [self addMotionEffect:motionEffect];
-        
-        motionEffect = [[UIInterpolatingMotionEffect alloc] initWithKeyPath:@"center.y" type:UIInterpolatingMotionEffectTypeTiltAlongVerticalAxis];
-        motionEffect.minimumRelativeValue = @(-motionEffectRelativeValue);
-        motionEffect.maximumRelativeValue = @(motionEffectRelativeValue);
-        [self addMotionEffect:motionEffect];
-
-        UIButton *button1 = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, 50, 50)];
-        button1.backgroundColor = [UIColor orangeColor];
-        [button1 addTarget:self action:@selector(playerPositionEndzoneLines) forControlEvents:UIControlEventTouchUpInside];
-        [self addSubview:button1];
-        
-        UIButton *button2 = [[UIButton alloc] initWithFrame:CGRectMake(60, 10, 50, 50)];
-        button2.backgroundColor = [UIColor purpleColor];
-        [button2 addTarget:self action:@selector(playerPositionVerticalStack) forControlEvents:UIControlEventTouchUpInside];
-        [self addSubview:button2];
-        
-        // Gesture Recognizers
-//        self.multipleTouchEnabled = YES;
-        
-        UIPinchGestureRecognizer *pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self
-                                                                                              action:@selector(pinch:)];
-        [self addGestureRecognizer:pinchRecognizer];
-        
-        
-        UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tap)];
-        [self addGestureRecognizer:tapRecognizer];
-        
-        
-        //Fix this pinch interrupt
-        
+        newMarker.markerPosition = CGPointMake(200, 200);
+        [newMarker updateMarkerLayer];
     }
     return self;
 }
 
 
 
-- (void)drawRect:(CGRect)rect
-{
-    // Drawing code
-
-    
-    for (HPDMarker *marker in self.allMarkers) {
-        [self strokeMarker:marker selected:NO];
-    }
-    
-    
-    if (self.selectionBox) {
-        [self strokeRectangleWithCGRect:[self.selectionBox CGRectValue]];
-    }
-    
-    if (self.selectedMarkers) {
-        for (HPDMarker *marker in self.selectedMarkers) {
-            [self strokeMarker:marker selected:YES];
-        }
-    }
-    
-    if (self.selectedMarker) {
-        if (!self.animating) {
-            [self strokeMarker:self.selectedMarker selected:YES];
-        }
-
-    }
+//- (void)drawRect:(CGRect)rect
+//{
+//    // Drawing code
 //
-}
+////
+//}
 
 
 #pragma mark - Drawing Methods
-
-- (void)strokeMarker:(HPDMarker *)marker selected:(BOOL)selected
-{
-    // Disable laggy stuff
-    [CATransaction setDisableActions:YES];
-
-    HPDMarker *currentMarker = marker;
-    
-    UIColor *markerColor = nil;
-    UIColor *markerStroke = [UIColor clearColor];
-    NSNumber *markerRadius = nil;
-    
-    
-    switch (marker.markerType) {
-        case HPDMarkerTypeBluePlayer:
-            markerColor = [UIColor blueColor];
-
-            markerRadius = [self.markerWidths objectForKey:@"player"];
-            break;
-        case HPDMarkerTypeRedPlayer:
-            markerColor = [UIColor redColor];
-            markerRadius = [self.markerWidths objectForKey:@"player"];
-            break;
-        case HPDMarkerTypeDisc:
-            markerColor = [UIColor whiteColor];
-            markerRadius = [self.markerWidths objectForKey:@"player"];
-            markerStroke = [UIColor blackColor];
-            
-            break;
-        default:
-            break;
-    }
-    
-    // Change marker width for selected items
-    CGFloat multiplier;
-    
-    if (!selected) {
-        multiplier = 1.0;
-    } else {
-        multiplier = self.selectedMarkerRadiusMultiplier;
-    }
-    CGFloat markerRadiusCGFloat = [markerRadius floatValue] * multiplier;
-
-    UIBezierPath *bezierPath = [UIBezierPath bezierPathWithArcCenter:currentMarker.markerPosition radius:markerRadiusCGFloat startAngle:0 endAngle:M_PI*2.0 clockwise:YES];
-//    bezierPath.lineWidth = 2;
-//    [markerStroke setStroke];
-//    [markerColor setFill];
-//    [bezierPath fill];
-//    [bezierPath stroke];
-
-    NSString *markerUUID = marker.markerKey;
-
-    CAShapeLayer *markerLayer = [self.markerCALayerArray objectForKey:markerUUID];
-    if (!markerLayer) {
-        CAShapeLayer *markerLayer = [CAShapeLayer layer];
-        markerLayer.frame = bezierPath.bounds;
-
-        CGPoint markerLayerCenter = CGPointMake(markerLayer.frame.size.width/2.0, markerLayer.frame.size.height/2.0);
-        
-        UIBezierPath *secondPath = [UIBezierPath bezierPathWithArcCenter:markerLayerCenter radius:markerRadiusCGFloat startAngle:0 endAngle:M_PI*2.0 clockwise:YES];
-        markerLayer.path = secondPath.CGPath;
-//        markerLayer.path = bezierPath.CGPath;
-        markerLayer.backgroundColor = [UIColor purpleColor].CGColor;
-        markerLayer.strokeColor = markerStroke.CGColor;
-        markerLayer.fillColor = markerColor.CGColor;
-        markerLayer.lineWidth = 2;
-        [self.layer addSublayer:markerLayer];
-        [self.markerCALayerArray setObject:markerLayer forKey:markerUUID];
-    } else {
-        markerLayer.frame = bezierPath.bounds;
-        CGPoint markerLayerCenter = CGPointMake(markerLayer.frame.size.width/2.0, markerLayer.frame.size.height/2.0);
-        UIBezierPath *secondPath = [UIBezierPath bezierPathWithArcCenter:markerLayerCenter radius:markerRadiusCGFloat startAngle:0 endAngle:M_PI*2.0 clockwise:YES];
-        markerLayer.path = secondPath.CGPath;
-//        markerLayer.path = bezierPath.CGPath;
-    }
-
-    
-    
-    
-    
-}
-
-- (void)strokeRectangleWithCGRect:(CGRect)rect
-{
-    UIBezierPath *bezierPath = [UIBezierPath bezierPathWithRect:rect];
-    [[UIColor grayColor] setFill];
-    [bezierPath fillWithBlendMode:kCGBlendModeNormal alpha:0.5];
-}
-#pragma mark - Player Positions
-
-- (void)playerPositionEndzoneLines
-{
-    // Create players
-    int playersPerSide = 7;
-    
-    CGFloat interval = self.fieldBounds.size.width/(playersPerSide+1);
-    CGPoint fieldOrigin = self.fieldBounds.origin;
-    
-    static BOOL afterInit = nil;
-    
-    if (!afterInit) {
-        afterInit = TRUE;
-        
-        HPDMarker *disc = [[HPDMarker alloc] initWithMarkerType:HPDMarkerTypeDisc];
-        disc.markerPosition = CGPointMake(fieldOrigin.x + self.fieldBounds.size.width/2, fieldOrigin.y +self.fieldBounds.size.height/2);
-        [self.allMarkers addObject:disc];
-        
-        for (int i = 1; i <= playersPerSide; i ++) {
-            HPDMarker *newBluePlayer = [[HPDMarker alloc] initWithMarkerType:HPDMarkerTypeBluePlayer];
-            [self.allMarkers addObject:newBluePlayer];
-            HPDMarker *newRedPlayer = [[HPDMarker alloc] initWithMarkerType:HPDMarkerTypeRedPlayer];
-            [self.allMarkers addObject:newRedPlayer];
-            
-            newBluePlayer.markerPosition = CGPointMake(i*interval+fieldOrigin.x, self.fieldBounds.size.height/110*87 + fieldOrigin.y);
-            newRedPlayer.markerPosition = CGPointMake(i*interval+fieldOrigin.x, self.fieldBounds.size.height/110*23 + fieldOrigin.y);
-        }
-    } else {
-        
-        int blueCounter = 0;
-        int redCounter = 0;
-        for (HPDMarker *marker in self.allMarkers) {
-            if (marker.markerType == HPDMarkerTypeBluePlayer) {
-                blueCounter ++;
-                marker.markerPosition = CGPointMake(blueCounter*interval+fieldOrigin.x, self.fieldBounds.size.height/110*87 + fieldOrigin.y);
-            } else if (marker.markerType == HPDMarkerTypeRedPlayer) {
-                redCounter ++;
-                marker.markerPosition = CGPointMake(redCounter*interval+fieldOrigin.x, self.fieldBounds.size.height/110*23 + fieldOrigin.y);
-            }
-        }
-    }
-    
-    self.selectedMarkers = nil;
-    [self setNeedsDisplay];
-    
-}
-
-- (void)playerPositionVerticalStack
-{
-    CGFloat centerX = self.fieldBounds.origin.x + self.fieldBounds.size.width/2.0;
-    CGFloat topEndzoneLineY = self.fieldBounds.origin.y + self.fieldBounds.size.height/110*23;
-    CGFloat bottomEndzoneLineY = self.fieldBounds.origin.y + self.fieldBounds.size.height/110*87;
-    CGFloat interval = (self.fieldBounds.size.height - 2*topEndzoneLineY)/ (7 + 1);
-//    CGFloat topFirstPlayerY = topEndzoneLineY + interval;
-    
-    int blueCounter = 0;
-    int redCounter = 0;
-    CGFloat markingDistance = [[self.markerWidths objectForKey:@"player"] floatValue] * 3;
-    CGFloat centerXDefenderPosition = centerX + markingDistance;
-    // Vertical and horizontal distances for markers positioned 45 degrees away
-    CGFloat distanceY = markingDistance*1/sqrtf(2);
-    HPDMarker *handler1;
-    HPDMarker *handler2;
-    
-    
-    for (HPDMarker *marker in self.allMarkers) {
-        if (marker.markerType == HPDMarkerTypeBluePlayer) {
-            blueCounter ++;
-            if (blueCounter <= 5) {
-                                CGFloat newMarkerY = topEndzoneLineY + blueCounter * interval;
-                marker.markerPosition = CGPointMake(centerX, newMarkerY);
-            } else if (blueCounter == 6) {
-                marker.markerPosition = CGPointMake(centerX, bottomEndzoneLineY);
-                handler1 = marker;
-            } else if (blueCounter == 7) {
-                CGPoint handler2Position = CGPointMake(handler1.markerPosition.x + distanceY*2, handler1.markerPosition.y + distanceY*2);
-                marker.markerPosition = handler2Position;
-                handler2 = marker;
-            }
-        }
-        
-        if (marker.markerType == HPDMarkerTypeRedPlayer) {
-            redCounter ++;
-            if (redCounter <= 5) {
-                CGFloat newMarkerY = topEndzoneLineY + redCounter * interval;
-                marker.markerPosition = CGPointMake(centerXDefenderPosition, newMarkerY);
-            } else if (redCounter == 6) {
-                
-                CGPoint position = CGPointMake(handler1.markerPosition.x-distanceY, handler1.markerPosition.y - distanceY);
-                marker.markerPosition = position;
-            } else if (redCounter == 7) {
-                CGPoint position = CGPointMake(handler2.markerPosition.x, handler2.markerPosition.y - markingDistance);
-                marker.markerPosition = position;
-            }
-        }
-        
-    }
-    self.selectedMarkers = nil;
-    [self setNeedsDisplay];
-
-}
 
 #pragma mark - Touch Methods
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-//    NSLog(@"%@",NSStringFromSelector(_cmd));
-//    UITouch *myTouch = [touches anyObject];
-//    CGPoint location = [myTouch locationInView:self];
-//    
-//    HPDMarker *newMarker = [[HPDMarker alloc] initWithMarkerType:HPDMarkerTypeRedPlayer];
-//    newMarker.markerPosition = location;
-//    [self.allMarkers addObject:newMarker];
-//    [self setNeedsDisplay];
     UITouch *myTouch = [touches anyObject];
     CGPoint location = [myTouch locationInView:self];
-    if (!self.selectedMarkers) {
-        HPDMarker *selectedMarker = [self markerAtPoint:location];
-        self.selectedMarker = selectedMarker;
-        [self.allMarkers removeObject:selectedMarker];
-        
-        // animation
-        [self animateMarker:self.selectedMarker];
-
-        
-    } else {
-        self.touchDownPosition = location;
-    }
-    [self setNeedsDisplay];
-}
-
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    UITouch *myTouch = [touches anyObject];
-    CGPoint location = [myTouch locationInView:self];
+    self.touchDownPosition = location;
     
-    if (!self.selectedMarkers) {
-        self.selectedMarker.markerPosition = location;
-    } else {
-        CGSize movedDistance = CGSizeMake(location.x - self.touchDownPosition.x, location.y - self.touchDownPosition.y);
-        for (HPDMarker *marker in self.selectedMarkers) {
-            CGPoint previousPosition = marker.markerPosition;
-            marker.markerPosition = CGPointMake(previousPosition.x + movedDistance.width, previousPosition.y + movedDistance.height);
-            
+    HPDMarker *selectedMarker = [self markerAtPoint:location];
+    
+    if (selectedMarker) {
+
+        [self animateMarkerSelected:selectedMarker selected:YES];
+        
+        if (!self.selectedMarkers) {
+            self.selectedMarkers = [[NSMutableArray alloc] init];
         }
-        self.touchDownPosition = location;
+        
+        [self.selectedMarkers addObject:selectedMarker];
     }
-    [self setNeedsDisplay];
+
+    
 }
+
 - (HPDMarker *)markerAtPoint:(CGPoint)point
 {
-    float touchThreshold = 20;
+    float touchThreshold = 10;
     for (HPDMarker *marker in self.allMarkers) {
         CGPoint markerPosition = marker.markerPosition;
-        if (hypot(point.x-markerPosition.x, point.y-markerPosition.y) < touchThreshold) {
+        if (hypot(point.x - markerPosition.x, point.y - markerPosition.y) < touchThreshold) {
             return marker;
         }
     }
     return nil;
 }
 
-- (void)pinch:(UIGestureRecognizer *)gr
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    CGPoint pointA;
-    CGPoint pointB;
-    
-    if ([gr numberOfTouches] >= 2) {
-        pointA = [gr locationOfTouch:0 inView:self];
-        pointB = [gr locationOfTouch:1 inView:self];
+    if (self.selectedMarkers) {
+        UITouch *myTouch = [touches anyObject];
+        CGPoint location = [myTouch locationInView:self];
+        CGSize movedDistance = CGSizeMake(location.x - self.touchDownPosition.x, location.y - self.touchDownPosition.y);
+        for (HPDMarker *marker in self.selectedMarkers) {
+            CGPoint previousPosition = marker.markerPosition;
+            marker.markerPosition = CGPointMake(previousPosition.x + movedDistance.width, previousPosition.y + movedDistance.height);
+            [marker updateMarkerLayer];
+            
+        }
+        self.touchDownPosition = location;
 
     }
-    
-    CGPoint topLeftCorner;
-    CGPoint bottomRightCorner;
-    
-    if (hypot(pointA.x, pointA.y) > hypot(pointB.x, pointB.y)) {
-        topLeftCorner = pointB;
-        bottomRightCorner = pointA;
-    } else {
-        topLeftCorner = pointA;
-        bottomRightCorner = pointB;
-    }
-    
-    CGRect rect = CGRectMake(topLeftCorner.x, topLeftCorner.y, bottomRightCorner.x-topLeftCorner.x, bottomRightCorner.y-topLeftCorner.y);
-    
-    if ([gr numberOfTouches] >= 2) {
-        self.selectionBox = [NSValue valueWithCGRect:rect];
-    }
-
-
-    if (gr.state == (UIGestureRecognizerStateEnded)) {
-        [self selection];
-        self.selectionBox = nil;
-
-    }
-    [self setNeedsDisplay];
 }
 
-- (void)selection
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    if (!self.selectedMarkers) {
-        self.selectedMarkers = [[NSMutableArray alloc] init];
-    }
-    
-    NSMutableArray *selectedMarkers = self.selectedMarkers;
-
-    CGRect selectionBox = [self.selectionBox CGRectValue];
-    for (HPDMarker *marker in self.allMarkers) {
-        if (CGRectContainsPoint(selectionBox, marker.markerPosition)) {
-            [selectedMarkers addObject:marker];
+    if (self.selectedMarkers) {
+        for (HPDMarker *marker in self.selectedMarkers) {
+            [self animateMarkerSelected:marker selected:NO];
         }
     }
-}
-
-// Clear selection
-- (void)tap
-{
     self.selectedMarkers = nil;
-    [self setNeedsDisplay];
 }
 
 #pragma mark - Animation Methods
 
-- (void)animateMarker:(HPDMarker *)marker
+// BOOLEAN indicates true for touches begin, and false for touches ended
+- (void)animateMarkerSelected:(HPDMarker *)marker selected:(BOOL)selected
 {
-    CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"transform"];
-    animation.fromValue = [NSValue valueWithCATransform3D:CATransform3DIdentity];
-    animation.toValue = [NSValue valueWithCATransform3D:CATransform3DMakeScale(self.selectedMarkerRadiusMultiplier, self.selectedMarkerRadiusMultiplier, 1.0)];
-    animation.removedOnCompletion = NO;
-    animation.delegate = self;
-
-    CAShapeLayer *markerLayer = [self.markerCALayerArray objectForKey:marker.markerKey];
-    [markerLayer addAnimation:animation forKey:nil];
-    self.animating = YES;
+    CGFloat scaleFactor = 1.8;
+    CGFloat opacityFactor = 0.5;
     
-}
-
-- (void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag
-{
-    if (flag) {
-        self.animating = NO;
+    if (!selected) {
+        scaleFactor = 1.0;
+        opacityFactor = 1.0;
     }
+    
+    CABasicAnimation *scaleAnimation = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
+    scaleAnimation.toValue = [NSNumber numberWithFloat:scaleFactor];
+    marker.markerCALayer.transform = CATransform3DMakeScale(scaleFactor, scaleFactor, 1.0);
+//    [marker.markerCALayer addAnimation:animation forKey:nil];
+    
+    CABasicAnimation *opacityAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+    opacityAnimation.toValue = [NSNumber numberWithFloat:opacityFactor];
+    marker.markerCALayer.opacity = opacityFactor;
+    
+    CAAnimationGroup *animation = [CAAnimationGroup animation];
+    animation.animations = [NSArray arrayWithObjects:scaleAnimation, opacityAnimation, nil];
+    [marker.markerCALayer addAnimation:animation forKey:nil];
+
 }
 
 @end
