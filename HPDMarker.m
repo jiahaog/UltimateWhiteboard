@@ -75,7 +75,7 @@
         
         self.markerCALayer.backgroundColor = markerColor.CGColor;
     }
-    NSLog(@"Updating Position to: %@", NSStringFromCGPoint(self.markerPosition));
+//    NSLog(@"Updating Position to: %@", NSStringFromCGPoint(self.markerPosition));
 
     self.markerCALayer.cornerRadius = self.markerWidth/2.0;
     self.markerCALayer.bounds = CGRectMake(0, 0, self.markerWidth, self.markerWidth);

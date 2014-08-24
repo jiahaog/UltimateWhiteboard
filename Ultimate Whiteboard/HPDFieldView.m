@@ -29,6 +29,7 @@
 
 // Options
 @property (nonatomic) int playersPerSide;
+@property (nonatomic) CGFloat touchoffset; // Offset for touches so that touched markers are not beneath the finger
 
 
 
@@ -45,7 +46,7 @@
         
         // Default options here
         _playersPerSide = 7;
-        
+        _touchoffset = 60;
         
         
         // Need this to show field background
@@ -55,7 +56,7 @@
         _fieldBounds = fieldBounds;
         
         
-
+        [self playerPositionEndzoneLines];
         
 
         
@@ -80,6 +81,8 @@
         
         UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tap)];
         [self addGestureRecognizer:tapRecognizer];
+        
+        
         
         
     }
@@ -220,12 +223,13 @@
     CGPoint location = [myTouch locationInView:self];
     self.touchDownPosition = location;
     
+
+    
     HPDMarker *selectedMarker = [self markerAtPoint:location];
     
     if (selectedMarker) {
 
-        [self animateMarkerSelected:selectedMarker selected:YES];
-        
+        [self animateMarkerSelected:selectedMarker selected:YES offsetMarker:YES];
         if (!self.selectedMarkers) {
             self.selectedMarkers = [[NSMutableArray alloc] init];
         }
@@ -236,17 +240,7 @@
     
 }
 
-- (HPDMarker *)markerAtPoint:(CGPoint)point
-{
-    float touchThreshold = 10;
-    for (HPDMarker *marker in self.allMarkers) {
-        CGPoint markerPosition = marker.markerPosition;
-        if (hypot(point.x - markerPosition.x, point.y - markerPosition.y) < touchThreshold) {
-            return marker;
-        }
-    }
-    return nil;
-}
+
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
@@ -256,7 +250,10 @@
         CGSize movedDistance = CGSizeMake(location.x - self.touchDownPosition.x, location.y - self.touchDownPosition.y);
         for (HPDMarker *marker in self.selectedMarkers) {
             CGPoint previousPosition = marker.markerPosition;
-            marker.markerPosition = CGPointMake(previousPosition.x + movedDistance.width, previousPosition.y + movedDistance.height);
+            CGPoint newPosition = CGPointMake(previousPosition.x + movedDistance.width, previousPosition.y + movedDistance.height);
+            marker.markerPosition = newPosition;
+//            [self animateMarker:marker toPosition:newPosition];
+            
             [marker updateMarkerLayerDisableCATransaction:YES];
             
         }
@@ -267,14 +264,19 @@
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    for (HPDMarker *marker in self.selectedMarkers) {
+        marker.markerPosition = marker.markerCALayer.position;
+    }
     [self deselectMarkers];
 }
 
+#pragma mark Gesture Methods
 
 - (void)pinch:(UIGestureRecognizer *)gr
 {
-    CGPoint pointA;
-    CGPoint pointB;
+    // Static to prevent rectangle from drawing weirdly when one of the touches is removed after pinching
+    static CGPoint pointA;
+    static CGPoint pointB;
     
     // Assign touches to points
     if ([gr numberOfTouches] >= 2) {
@@ -283,19 +285,21 @@
     }
     
     CGPoint topLeftCorner;
-    CGPoint bottomRightCorner;
     
-    // Maps top left and bottom right to touches appropriately
-    if (hypot(pointA.x, pointB.y) > hypot(pointB.x, pointB.y)) {
-        topLeftCorner = pointB;
-        bottomRightCorner = pointA;
-    } else {
+    // Maps top left corner of rect appropriately
+    if (pointA.x <= pointB.x & pointA.y <= pointB.y) {
         topLeftCorner = pointA;
-        bottomRightCorner = pointB;
+    } else if (pointA.x <= pointB.x & pointA.y > pointB.y){
+        topLeftCorner = CGPointMake(pointA.x, pointB.y);
+    } else if (pointA.x > pointB.x & pointA.y <= pointB.y) {
+        topLeftCorner = CGPointMake(pointB.x, pointA.y);
+    } else if (pointA.x > pointB.x & pointA.y > pointB.y) {
+        topLeftCorner = pointB;
     }
     
-    CGRect rect = CGRectMake(topLeftCorner.x, topLeftCorner.y, bottomRightCorner.x - topLeftCorner.x, bottomRightCorner.y - topLeftCorner.y);
-
+    
+    CGSize rectDimensions = CGSizeMake(labs(pointA.x - pointB.x), labs(pointA.y - pointB.y));
+    CGRect rect = CGRectMake(topLeftCorner.x, topLeftCorner.y, rectDimensions.width, rectDimensions.height);
     
     if ([gr numberOfTouches] >= 2 ) {
         self.selectionBox = [NSValue valueWithCGRect:rect];
@@ -317,8 +321,6 @@
     }
     
     
-    
-    
     if (gr.state == (UIGestureRecognizerStateEnded)) {
         [self selection];
         self.selectionBox = nil;
@@ -338,7 +340,7 @@
     
     for (HPDMarker *marker in self.allMarkers) {
         if (CGRectContainsPoint(selectionBox, marker.markerPosition)) {
-            [self animateMarkerSelected:marker selected:YES];
+            [self animateMarkerSelected:marker selected:YES offsetMarker:NO];
             [self.selectedMarkers addObject:marker];
         }
     }
@@ -349,44 +351,88 @@
     [self deselectMarkers];
 }
 
+#pragma mark - Helper Selection Methods
 
-#pragma mark - Animation Methods
-
-// BOOLEAN indicates true for touches begin, and false for touches ended
-- (void)animateMarkerSelected:(HPDMarker *)marker selected:(BOOL)selected
+- (HPDMarker *)markerAtPoint:(CGPoint)point
 {
-    CGFloat scaleFactor = 1.8;
-    CGFloat opacityFactor = 0.5;
-    
-    if (!selected) {
-        scaleFactor = 1.0;
-        opacityFactor = 1.0;
+    float touchThreshold = 15;
+    for (HPDMarker *marker in self.allMarkers) {
+        CGPoint markerPosition = marker.markerPosition;
+        if (hypot(point.x - markerPosition.x, point.y - markerPosition.y) < touchThreshold) {
+            return marker;
+        }
     }
-    
-    CABasicAnimation *scaleAnimation = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
-    scaleAnimation.toValue = [NSNumber numberWithFloat:scaleFactor];
-    marker.markerCALayer.transform = CATransform3DMakeScale(scaleFactor, scaleFactor, 1.0);
-//    [marker.markerCALayer addAnimation:animation forKey:nil];
-    
-    CABasicAnimation *opacityAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
-    opacityAnimation.toValue = [NSNumber numberWithFloat:opacityFactor];
-    marker.markerCALayer.opacity = opacityFactor;
-    
-    CAAnimationGroup *animation = [CAAnimationGroup animation];
-    animation.animations = [NSArray arrayWithObjects:scaleAnimation, opacityAnimation, nil];
-    [marker.markerCALayer addAnimation:animation forKey:nil];
-
+    return nil;
 }
 
 - (void)deselectMarkers
 {
     if (self.selectedMarkers) {
         for (HPDMarker *marker in self.selectedMarkers) {
-            [self animateMarkerSelected:marker selected:NO];
+            [self animateMarkerSelected:marker selected:NO offsetMarker:NO];
         }
     }
     self.selectedMarkers = nil;
+    
+}
 
+
+#pragma mark - Animation Methods
+
+// BOOLEAN selected indicates true for touches begin, and false for touches ended
+- (void)animateMarkerSelected:(HPDMarker *)marker selected:(BOOL)selected offsetMarker:(BOOL)offsetMarker
+{
+    CGFloat scaleFactor = 1.4;
+    
+    if (!selected) {
+        scaleFactor = 1.0;
+    }
+    
+    CABasicAnimation *scaleAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
+    scaleAnimation.fromValue = [NSValue valueWithCATransform3D:marker.markerCALayer.transform];
+    scaleAnimation.toValue = [NSValue valueWithCATransform3D:CATransform3DMakeScale(scaleFactor, scaleFactor, 1.0)];
+    scaleAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+//    scaleAnimation.duration = 3;
+    marker.markerCALayer.transform = CATransform3DMakeScale(scaleFactor, scaleFactor, 1.0);
+
+    [marker.markerCALayer addAnimation:scaleAnimation forKey:nil];
+    
+    
+    CGPoint positionAfterOffset;
+
+    if (offsetMarker) {
+        positionAfterOffset = CGPointMake(marker.markerCALayer.position.x, marker.markerPosition.y - self.touchoffset);
+        CABasicAnimation *translateAnimation = [CABasicAnimation animationWithKeyPath:@"position"];
+        translateAnimation.fromValue = [NSValue valueWithCGPoint:marker.markerPosition];
+        translateAnimation.toValue = [NSValue valueWithCGPoint:positionAfterOffset];
+        translateAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+//        translateAnimation.duration = 3;
+        marker.markerCALayer.position = positionAfterOffset;
+        marker.markerPosition = positionAfterOffset;
+        [marker.markerCALayer addAnimation:translateAnimation forKey:nil];
+        
+    }
+    
+
+}
+
+
+
+- (void)animateMarker:(HPDMarker *)marker toPosition:(CGPoint)newPosition
+{
+    CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"position"];
+    animation.fromValue = [NSValue valueWithCGPoint:marker.markerPosition];
+    animation.toValue = [NSValue valueWithCGPoint:newPosition];
+    marker.markerCALayer.position = newPosition;
+    marker.markerPosition = newPosition;
+    
+//    CGFloat dx = newPosition.x - marker.markerPosition.x;
+//    CGFloat dy = newPosition.y - marker.markerPosition.y;
+//    
+//    NSLog(@"Translating from:%@ to %@", NSStringFromCGPoint(marker.markerPosition), NSStringFromCGPoint(newPosition));
+//    animation.toValue = [NSValue valueWithCGSize:CGSizeMake(dx, dy)];
+//    marker.markerCALayer.position = newPosition;
+    [marker.markerCALayer addAnimation:animation forKey:nil];
 }
 
 @end
