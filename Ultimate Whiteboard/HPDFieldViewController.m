@@ -68,6 +68,7 @@
 {
     HPDFieldView *fieldView = [[HPDFieldView alloc] initWithFrame:self.view.bounds fieldBounds:self.fieldBackground.fieldBounds];
     
+    
 //    POPSpringAnimation *anim = [POPSpringAnimation animationWithPropertyNamed:kPOPLayerBounds];
 //    anim.toValue = [NSValue valueWithCGRect:CGRectMake(0, 0, 400, 400)];
 //    [fieldView pop_addAnimation:anim forKey:@"myKey"];

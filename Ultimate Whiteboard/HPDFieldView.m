@@ -26,6 +26,7 @@
 @property (nonatomic) CGPoint touchDownPosition;
 @property (nonatomic) NSValue *selectionBox;
 @property (nonatomic) CALayer *selectionBoxLayer;
+@property (nonatomic) CGFloat largestZposition;
 
 // Options
 @property (nonatomic) int playersPerSide;
@@ -46,7 +47,7 @@
         
         // Default options here
         _playersPerSide = 7;
-        _touchoffset = 60;
+        _touchoffset = 30;
         
         
         // Need this to show field background
@@ -56,10 +57,12 @@
         _fieldBounds = fieldBounds;
         
         
+        // initialize variables
+        self.largestZposition = 0;
+        
         [self playerPositionEndzoneLines];
         
 
-        
         
         
         // Create buttons to allow changing of formations
@@ -81,22 +84,11 @@
         
         UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tap)];
         [self addGestureRecognizer:tapRecognizer];
-        
-        
-        
-        
+
+
     }
     return self;
 }
-
-
-
-//- (void)drawRect:(CGRect)rect
-//{
-//    // Drawing code
-//
-////
-//}
 
 #pragma mark - Player Positions
 
@@ -105,13 +97,13 @@
     self.allMarkers = [[NSMutableArray alloc] init];
     
     for (int i = 1; i <= self.playersPerSide; i++) {
-        HPDMarker *newBluePlayer = [[HPDMarker alloc] initWithMarkerType:HPDMarkerTypeBluePlayer viewToDrawOn:self];
+        HPDMarker *newBluePlayer = [[HPDMarker alloc] initWithMarkerType:HPDMarkerTypeBluePlayer viewToDrawOn:self markerNumber:i];
         [self.allMarkers addObject:newBluePlayer];
-        HPDMarker *newRedPlayer = [[HPDMarker alloc] initWithMarkerType:HPDMarkerTypeRedPlayer viewToDrawOn:self];
+        HPDMarker *newRedPlayer = [[HPDMarker alloc] initWithMarkerType:HPDMarkerTypeRedPlayer viewToDrawOn:self markerNumber:i];
         [self.allMarkers addObject:newRedPlayer];
     }
     
-    HPDMarker *disc = [[HPDMarker alloc] initWithMarkerType:HPDMarkerTypeDisc viewToDrawOn:self];
+    HPDMarker *disc = [[HPDMarker alloc] initWithMarkerType:HPDMarkerTypeDisc viewToDrawOn:self markerNumber:0];
     [self.allMarkers addObject:disc];
 
 }
@@ -160,8 +152,9 @@
     CGFloat interval = (self.fieldBounds.size.height - 2*topEndzoneLineY)/ (7 + 1);
     //    CGFloat topFirstPlayerY = topEndzoneLineY + interval;
     
-    int blueCounter = 0;
-    int redCounter = 0;
+    // Counters are used to position the players in the vert stack
+    int blueCounter = 3;
+    int redCounter = 3;
 
     HPDMarker *handler1;
     HPDMarker *handler2;
@@ -176,14 +169,14 @@
 
         
         if (marker.markerType == HPDMarkerTypeBluePlayer) {
-            blueCounter ++;
-            if (blueCounter <= 5) {
-                CGFloat newMarkerY = topEndzoneLineY + blueCounter * interval;
+            if (marker.markerNumber >= 3) {
+                CGFloat newMarkerY = bottomEndzoneLineY - blueCounter * interval;
                 marker.markerPosition = CGPointMake(centerX, newMarkerY);
-            } else if (blueCounter == 6) {
+                blueCounter ++;
+            } else if (marker.markerNumber == 1) {
                 marker.markerPosition = CGPointMake(centerX, bottomEndzoneLineY);
                 handler1 = marker;
-            } else if (blueCounter == 7) {
+            } else if (marker.markerNumber == 2) {
                 CGPoint handler2Position = CGPointMake(handler1.markerPosition.x + distanceY*2, handler1.markerPosition.y + distanceY*2);
                 marker.markerPosition = handler2Position;
                 handler2 = marker;
@@ -191,15 +184,16 @@
         }
         
         if (marker.markerType == HPDMarkerTypeRedPlayer) {
-            redCounter ++;
-            if (redCounter <= 5) {
-                CGFloat newMarkerY = topEndzoneLineY + redCounter * interval;
+
+            if (marker.markerNumber >= 3) {
+                CGFloat newMarkerY = bottomEndzoneLineY - redCounter * interval;
                 marker.markerPosition = CGPointMake(centerXDefenderPosition, newMarkerY);
-            } else if (redCounter == 6) {
+                redCounter ++;
+            } else if (marker.markerNumber == 1) {
                 
                 CGPoint position = CGPointMake(handler1.markerPosition.x-distanceY, handler1.markerPosition.y - distanceY);
                 marker.markerPosition = position;
-            } else if (redCounter == 7) {
+            } else if (marker.markerNumber == 2) {
                 CGPoint position = CGPointMake(handler2.markerPosition.x, handler2.markerPosition.y - markingDistance);
                 marker.markerPosition = position;
             }
@@ -219,24 +213,31 @@
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    
     UITouch *myTouch = [touches anyObject];
     CGPoint location = [myTouch locationInView:self];
     self.touchDownPosition = location;
     
 
-    
-    HPDMarker *selectedMarker = [self markerAtPoint:location];
-    
-    if (selectedMarker) {
-
-        [self animateMarkerSelected:selectedMarker selected:YES offsetMarker:YES];
-        if (!self.selectedMarkers) {
-            self.selectedMarkers = [[NSMutableArray alloc] init];
+    if (!self.selectedMarkers) {
+        HPDMarker *selectedMarker = [self markerAtPoint:location];
+        
+        if (selectedMarker) {
+            
+            //Change zposition to make selected marker on top of everything
+            self.largestZposition += 1;
+            selectedMarker.markerCALayer.zPosition = self.largestZposition;
+            
+            [self animateMarkerSelected:selectedMarker selected:YES offsetMarker:YES];
+            if (!self.selectedMarkers) {
+                self.selectedMarkers = [[NSMutableArray alloc] init];
+            }
+            
+            [self.selectedMarkers addObject:selectedMarker];
         }
         
-        [self.selectedMarkers addObject:selectedMarker];
-    }
 
+    }
     
 }
 
@@ -248,12 +249,14 @@
         UITouch *myTouch = [touches anyObject];
         CGPoint location = [myTouch locationInView:self];
         CGSize movedDistance = CGSizeMake(location.x - self.touchDownPosition.x, location.y - self.touchDownPosition.y);
+        
+        self.largestZposition += 1;
+        
         for (HPDMarker *marker in self.selectedMarkers) {
             CGPoint previousPosition = marker.markerPosition;
             CGPoint newPosition = CGPointMake(previousPosition.x + movedDistance.width, previousPosition.y + movedDistance.height);
             marker.markerPosition = newPosition;
-//            [self animateMarker:marker toPosition:newPosition];
-            
+            marker.markerCALayer.zPosition = self.largestZposition;
             [marker updateMarkerLayerDisableCATransaction:YES];
             
         }
@@ -274,6 +277,13 @@
 
 - (void)pinch:(UIGestureRecognizer *)gr
 {
+    
+    // Prevents two pinches at once
+    if (self.selectedMarkers) {
+        return;
+    }
+    
+    
     // Static to prevent rectangle from drawing weirdly when one of the touches is removed after pinching
     static CGPoint pointA;
     static CGPoint pointB;
@@ -350,7 +360,6 @@
 {
     [self deselectMarkers];
 }
-
 #pragma mark - Helper Selection Methods
 
 - (HPDMarker *)markerAtPoint:(CGPoint)point
@@ -388,32 +397,37 @@
         scaleFactor = 1.0;
     }
     
-    CABasicAnimation *scaleAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
-    scaleAnimation.fromValue = [NSValue valueWithCATransform3D:marker.markerCALayer.transform];
-    scaleAnimation.toValue = [NSValue valueWithCATransform3D:CATransform3DMakeScale(scaleFactor, scaleFactor, 1.0)];
-    scaleAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-//    scaleAnimation.duration = 3;
-    marker.markerCALayer.transform = CATransform3DMakeScale(scaleFactor, scaleFactor, 1.0);
-
-    [marker.markerCALayer addAnimation:scaleAnimation forKey:nil];
+//    CABasicAnimation *scaleAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
+//    scaleAnimation.fromValue = [NSValue valueWithCATransform3D:marker.markerCALayer.transform];
+//    scaleAnimation.toValue = [NSValue valueWithCATransform3D:CATransform3DMakeScale(scaleFactor, scaleFactor, 1.0)];
+//    scaleAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+//    scaleAnimation.duration = 0.1;
+//    marker.markerCALayer.transform = CATransform3DMakeScale(scaleFactor, scaleFactor, 1.0);
+//
+//    [marker.markerCALayer addAnimation:scaleAnimation forKey:nil];
+//    
+    POPSpringAnimation *springAnimation = [POPSpringAnimation animation];
+    springAnimation.property = [POPAnimatableProperty propertyWithName:kPOPLayerScaleXY];
+    springAnimation.springBounciness = 20;
+    springAnimation.springSpeed = 3;
+    springAnimation.toValue = [NSValue valueWithCGSize:CGSizeMake(scaleFactor, scaleFactor)];
+    [marker.markerCALayer pop_addAnimation:springAnimation forKey:nil];
+    
+    
     
     
     CGPoint positionAfterOffset;
 
     if (offsetMarker) {
         positionAfterOffset = CGPointMake(marker.markerCALayer.position.x, marker.markerPosition.y - self.touchoffset);
-        CABasicAnimation *translateAnimation = [CABasicAnimation animationWithKeyPath:@"position"];
-        translateAnimation.fromValue = [NSValue valueWithCGPoint:marker.markerPosition];
-        translateAnimation.toValue = [NSValue valueWithCGPoint:positionAfterOffset];
-        translateAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-//        translateAnimation.duration = 3;
-        marker.markerCALayer.position = positionAfterOffset;
-        marker.markerPosition = positionAfterOffset;
-        [marker.markerCALayer addAnimation:translateAnimation forKey:nil];
-        
-    }
-    
 
+        POPBasicAnimation *translateAnimation = [POPBasicAnimation animation];
+        translateAnimation.property = [POPAnimatableProperty propertyWithName:kPOPLayerPosition];
+        translateAnimation.toValue = [NSValue valueWithCGPoint:positionAfterOffset];
+        translateAnimation.duration = 0.1;
+        marker.markerPosition = positionAfterOffset;
+        [marker.markerCALayer pop_addAnimation:translateAnimation forKey:nil];
+    }
 }
 
 

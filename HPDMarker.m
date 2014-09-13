@@ -16,15 +16,15 @@
 
 @implementation HPDMarker
 
-- (instancetype)initWithMarkerType:(char)markerType viewToDrawOn:(UIView *)view
+- (instancetype)initWithMarkerType:(char)markerType viewToDrawOn:(UIView *)view markerNumber:(int)markerNumber
 {
     self = [super init];
+    
     _markerType = markerType;
-    
     _markerWidth = 20;
-    
-    
     _viewToDrawOn = view;
+    _markerNumber = markerNumber;
+    
     [self updateMarkerLayerDisableCATransaction:YES];
     [self.viewToDrawOn.layer addSublayer:self.markerCALayer];
     
@@ -49,7 +49,8 @@
 
     if (!self.markerCALayer) {
         self.markerCALayer = [CALayer layer];
-
+        self.markerCALayer.zPosition = 0;
+        
         UIColor *markerColor = nil;
         UIColor *markerStroke = [UIColor clearColor];
         
@@ -72,14 +73,39 @@
         }
 
         
+        // Create label only for non disc marker types
+        if (self.markerType != HPDMarkerTypeDisc) {
+            // Create label
+            CATextLayer *label = [[CATextLayer alloc] init];
+            [label setFont:@"Helvetica-Bold"];
+            [label setFontSize:14];
+            [label setFrame:CGRectMake(0, 1, 20, 20)];
+            [label setString:[NSString stringWithFormat:@"%d", self.markerNumber]];
+            [label setAlignmentMode:kCAAlignmentCenter];
+            [label setForegroundColor:[UIColor whiteColor].CGColor];
+            
+            // Important line to stop textlayer from being blurred
+            [label setContentsScale:[[UIScreen mainScreen] scale]];
+            
+            
+            [self.markerCALayer addSublayer:label];
+            
+        }
+        
         
         self.markerCALayer.backgroundColor = markerColor.CGColor;
     }
 //    NSLog(@"Updating Position to: %@", NSStringFromCGPoint(self.markerPosition));
 
     self.markerCALayer.cornerRadius = self.markerWidth/2.0;
+
     self.markerCALayer.bounds = CGRectMake(0, 0, self.markerWidth, self.markerWidth);
     self.markerCALayer.position = self.markerPosition;
+    
+    // Anti aliasing 
+    self.markerCALayer.rasterizationScale = [UIScreen mainScreen].scale;
+    self.markerCALayer.shouldRasterize = YES;
+
     
     if (disableCATransaction) {
         [CATransaction setDisableActions:NO];

@@ -18,6 +18,7 @@ typedef NS_ENUM(char, markerType) {
 
 @property (nonatomic) CGPoint markerPosition;
 @property (nonatomic) int markerType;
+@property (nonatomic) int markerNumber;
 
 // Drawing Properties
 @property (nonatomic) CALayer *markerCALayer;
@@ -25,7 +26,7 @@ typedef NS_ENUM(char, markerType) {
 
 
 // Designated Initiator
-- (instancetype)initWithMarkerType:(char)markerType viewToDrawOn:(UIView *)view;
+- (instancetype)initWithMarkerType:(char)markerType viewToDrawOn:(UIView *)view markerNumber:(int)markerNumber;
 
 - (void)updateMarkerLayerDisableCATransaction:(BOOL)disableCATransaction;
 
