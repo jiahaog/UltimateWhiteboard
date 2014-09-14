@@ -22,6 +22,7 @@
 		97631F461987730F007CA49A /* Ultimate_WhiteboardTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 97631F451987730F007CA49A /* Ultimate_WhiteboardTests.m */; };
 		97631F55198773B0007CA49A /* HPDFieldView.m in Sources */ = {isa = PBXBuildFile; fileRef = 97631F54198773B0007CA49A /* HPDFieldView.m */; };
 		97631F58198773CB007CA49A /* HPDFieldViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 97631F57198773CB007CA49A /* HPDFieldViewController.m */; };
+		97D9FAE719C5802F00930D79 /* HPDMarkerStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 97D9FAE619C5802F00930D79 /* HPDMarkerStore.m */; };
 		97E2606519B6C6B600EF679C /* twitter logo mask.png in Resources */ = {isa = PBXBuildFile; fileRef = 97E2606419B6C6B600EF679C /* twitter logo mask.png */; };
 		97F76AC71988820B00A8B450 /* HPDMarker.m in Sources */ = {isa = PBXBuildFile; fileRef = 97F76AC61988820B00A8B450 /* HPDMarker.m */; };
 		97F76ACA1988A28600A8B450 /* HPDFieldBackground.m in Sources */ = {isa = PBXBuildFile; fileRef = 97F76AC91988A28600A8B450 /* HPDFieldBackground.m */; };
@@ -60,6 +61,8 @@
 		97631F54198773B0007CA49A /* HPDFieldView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPDFieldView.m; sourceTree = "<group>"; };
 		97631F56198773CB007CA49A /* HPDFieldViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPDFieldViewController.h; sourceTree = "<group>"; };
 		97631F57198773CB007CA49A /* HPDFieldViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPDFieldViewController.m; sourceTree = "<group>"; };
+		97D9FAE519C5802F00930D79 /* HPDMarkerStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPDMarkerStore.h; sourceTree = "<group>"; };
+		97D9FAE619C5802F00930D79 /* HPDMarkerStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPDMarkerStore.m; sourceTree = "<group>"; };
 		97E2606419B6C6B600EF679C /* twitter logo mask.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "twitter logo mask.png"; sourceTree = "<group>"; };
 		97F76AC51988820B00A8B450 /* HPDMarker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HPDMarker.h; path = ../HPDMarker.h; sourceTree = "<group>"; };
 		97F76AC61988820B00A8B450 /* HPDMarker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HPDMarker.m; path = ../HPDMarker.m; sourceTree = "<group>"; };
@@ -170,6 +173,8 @@
 		97631F5219877373007CA49A /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				97D9FAE519C5802F00930D79 /* HPDMarkerStore.h */,
+				97D9FAE619C5802F00930D79 /* HPDMarkerStore.m */,
 				97F76AC51988820B00A8B450 /* HPDMarker.h */,
 				97F76AC61988820B00A8B450 /* HPDMarker.m */,
 			);
@@ -336,6 +341,7 @@
 				97F76ACA1988A28600A8B450 /* HPDFieldBackground.m in Sources */,
 				97631F55198773B0007CA49A /* HPDFieldView.m in Sources */,
 				97631F2D1987730F007CA49A /* main.m in Sources */,
+				97D9FAE719C5802F00930D79 /* HPDMarkerStore.m in Sources */,
 				97631F58198773CB007CA49A /* HPDFieldViewController.m in Sources */,
 				97631F311987730F007CA49A /* HPDAppDelegate.m in Sources */,
 			);

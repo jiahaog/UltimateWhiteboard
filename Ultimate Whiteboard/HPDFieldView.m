@@ -11,13 +11,16 @@
 #import "HPDFieldView.h"
 #import "HPDMarker.h"
 #import "HPDFieldBackground.h"
+#import "HPDMarkerStore.h"
 
 @interface HPDFieldView ()
 
+// Model storage for all markers
+@property (nonatomic) NSArray *allMarkers;
 
-// Storage for markers
-@property (nonatomic) NSMutableArray *allMarkers;
+// Temporary pointers for markers
 @property (nonatomic) NSMutableArray *selectedMarkers;
+@property (nonatomic) HPDMarker *discMarker;
 
 // Properties for field dimensions
 @property (nonatomic) CGRect fieldBounds;
@@ -60,7 +63,7 @@
         // initialize variables
         self.largestZposition = 0;
         
-        [self playerPositionEndzoneLines];
+        [self initMarkers];
         
 
         
@@ -94,26 +97,52 @@
 
 - (void)initMarkers
 {
-    self.allMarkers = [[NSMutableArray alloc] init];
     
-    for (int i = 1; i <= self.playersPerSide; i++) {
-        HPDMarker *newBluePlayer = [[HPDMarker alloc] initWithMarkerType:HPDMarkerTypeBluePlayer viewToDrawOn:self markerNumber:i];
-        [self.allMarkers addObject:newBluePlayer];
-        HPDMarker *newRedPlayer = [[HPDMarker alloc] initWithMarkerType:HPDMarkerTypeRedPlayer viewToDrawOn:self markerNumber:i];
-        [self.allMarkers addObject:newRedPlayer];
+    self.allMarkers = [[HPDMarkerStore sharedStore] allMarkers];
+    
+    // If no data is stored
+    if (!self.allMarkers) {
+        
+        for (int i = 1; i <= self.playersPerSide; i++) {
+            HPDMarker *newBluePlayer = [[HPDMarker alloc] initWithMarkerType:HPDMarkerTypeBluePlayer viewToDrawOn:self markerNumber:i];
+            [[HPDMarkerStore sharedStore] addMarker:newBluePlayer];
+            HPDMarker *newRedPlayer = [[HPDMarker alloc] initWithMarkerType:HPDMarkerTypeRedPlayer viewToDrawOn:self markerNumber:i];
+            [[HPDMarkerStore sharedStore] addMarker:newRedPlayer];
+        }
+        
+        HPDMarker *disc = [[HPDMarker alloc] initWithMarkerType:HPDMarkerTypeDisc viewToDrawOn:self markerNumber:0];
+        [[HPDMarkerStore sharedStore] addMarker:disc];
+        self.discMarker = disc;
+        
+        
+        self.allMarkers = [[HPDMarkerStore sharedStore] allMarkers];
+        
+        [self playerPositionEndzoneLines];
+        
+    } else {
+        
+        // If Data is stored
+        for (HPDMarker *marker in self.allMarkers) {
+            
+            // Need to update the viewToDrawOn, as a new UIView is created each time
+            marker.viewToDrawOn = self;
+            [marker updateMarkerLayerDisableCATransaction:YES];
+            
+            // Assigns disc to pointer
+            if (marker.markerType == HPDMarkerTypeDisc) {
+                self.discMarker = marker;
+            }
+            
+        }
     }
     
-    HPDMarker *disc = [[HPDMarker alloc] initWithMarkerType:HPDMarkerTypeDisc viewToDrawOn:self markerNumber:0];
-    [self.allMarkers addObject:disc];
+    
+
 
 }
 
 - (void)playerPositionEndzoneLines
 {
-    
-    if (!self.allMarkers) {
-        [self initMarkers];
-    }
     
     [self deselectMarkers];
     
@@ -139,11 +168,7 @@
 
 - (void)playerPositionVerticalStack
 {
- 
-    if (!self.allMarkers) {
-        [self initMarkers];
-    }
-    
+
     [self deselectMarkers];
     
     CGFloat centerX = self.fieldBounds.origin.x + self.fieldBounds.size.width/2.0;
@@ -205,9 +230,6 @@
 
     
 }
-
-
-#pragma mark - Drawing Methods
 
 #pragma mark - Touch Methods
 
@@ -271,6 +293,10 @@
         marker.markerPosition = marker.markerCALayer.position;
     }
     [self deselectMarkers];
+    
+    // Make disc on top of everything
+    self.discMarker.markerCALayer.zPosition = self.largestZposition;
+    [self.discMarker updateMarkerLayerDisableCATransaction:YES];
 }
 
 #pragma mark Gesture Methods
@@ -333,6 +359,12 @@
     
     if (gr.state == (UIGestureRecognizerStateEnded)) {
         [self selection];
+        self.selectionBox = nil;
+        [self.selectionBoxLayer removeFromSuperlayer];
+        self.selectionBoxLayer = nil;
+    }
+    
+    if (gr.state == (UIGestureRecognizerStateCancelled)) {
         self.selectionBox = nil;
         [self.selectionBoxLayer removeFromSuperlayer];
         self.selectionBoxLayer = nil;
@@ -448,5 +480,6 @@
 //    marker.markerCALayer.position = newPosition;
     [marker.markerCALayer addAnimation:animation forKey:nil];
 }
+
 
 @end

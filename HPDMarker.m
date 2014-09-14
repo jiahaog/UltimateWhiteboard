@@ -8,11 +8,6 @@
 
 #import "HPDMarker.h"
 
-@interface HPDMarker ()
-
-@property (nonatomic) UIView *viewToDrawOn;
-
-@end
 
 @implementation HPDMarker
 
@@ -26,11 +21,11 @@
     _markerNumber = markerNumber;
     
     [self updateMarkerLayerDisableCATransaction:YES];
-    [self.viewToDrawOn.layer addSublayer:self.markerCALayer];
+
+    
     
     return self;
 }
-
 
 - (void)updateMarkerLayerDisableCATransaction:(BOOL)disableCATransaction
 {
@@ -42,6 +37,9 @@
 //    }
 //    UIBezierPath *markerPath = [UIBezierPath bezierPathWithArcCenter:self.markerPosition radius:self.markerWidth startAngle:0 endAngle:M_PI*2.0 clockwise:YES];
 //    self.markerCALayer.path = markerPath.CGPath;
+    
+
+    
     
     if (disableCATransaction) {
         [CATransaction setDisableActions:YES];
@@ -102,7 +100,7 @@
     self.markerCALayer.bounds = CGRectMake(0, 0, self.markerWidth, self.markerWidth);
     self.markerCALayer.position = self.markerPosition;
     
-    // Anti aliasing 
+    // Anti aliasing
     self.markerCALayer.rasterizationScale = [UIScreen mainScreen].scale;
     self.markerCALayer.shouldRasterize = YES;
 
@@ -110,7 +108,40 @@
     if (disableCATransaction) {
         [CATransaction setDisableActions:NO];
     }
+    
+    // If it does not have a superlayer to draw on, add it to the viewToDrawOn
+    if (![self.markerCALayer superlayer]) {
+        [self.viewToDrawOn.layer addSublayer:self.markerCALayer];
+    }
+    
 }
 
+#pragma mark - NSCoding Methods
+
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
+    [aCoder encodeCGPoint:self.markerPosition forKey:@"markerPosition"];
+    [aCoder encodeInt:self.markerType forKey:@"markerType"];
+    [aCoder encodeInt:self.markerNumber forKey:@"markerNumber"];
+    [aCoder encodeObject:self.markerCALayer forKey:@"markerCALayer"];
+    [aCoder encodeFloat:self.markerWidth forKey:@"markerWidth"];
+    
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder
+{
+    self = [super init];
+    if (self) {
+        _markerPosition = [aDecoder decodeCGPointForKey:@"markerPosition"];
+        _markerType = [aDecoder decodeIntForKey:@"markerType"];
+        _markerNumber = [aDecoder decodeIntForKey:@"markerNumber"];
+        _markerCALayer = [aDecoder decodeObjectForKey:@"markerCALayer"];
+        _markerWidth = [aDecoder decodeFloatForKey:@"markerWidth"];
+        _viewToDrawOn = [aDecoder decodeObjectForKey:@"viewToDrawOn"];
+
+        
+    }
+    return self;
+}
 
 @end

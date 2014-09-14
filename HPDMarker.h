@@ -14,7 +14,7 @@ typedef NS_ENUM(char, markerType) {
     HPDMarkerTypeDisc,
 };
 
-@interface HPDMarker : NSObject
+@interface HPDMarker : NSObject <NSCoding>
 
 @property (nonatomic) CGPoint markerPosition;
 @property (nonatomic) int markerType;
@@ -23,7 +23,7 @@ typedef NS_ENUM(char, markerType) {
 // Drawing Properties
 @property (nonatomic) CALayer *markerCALayer;
 @property (nonatomic) CGFloat markerWidth;
-
+@property (nonatomic) UIView *viewToDrawOn;
 
 // Designated Initiator
 - (instancetype)initWithMarkerType:(char)markerType viewToDrawOn:(UIView *)view markerNumber:(int)markerNumber;
