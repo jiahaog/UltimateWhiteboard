@@ -34,9 +34,13 @@
 // Property to hold controlbar
 @property (nonatomic) UIView *controlBar;
 
+// Property to track if animation mode has started
+@property (nonatomic) BOOL animationMode;
+
 // Options
 @property (nonatomic) int playersPerSide;
 @property (nonatomic) CGFloat touchoffset; // Offset for touches so that touched markers are not beneath the finger
+@property (nonatomic) CGFloat keyframeDuration;
 
 
 @end
@@ -53,7 +57,7 @@
         // Default options here
         _playersPerSide = 7;
         _touchoffset = 30;
-        
+        _keyframeDuration = 1; // sets time interval per keyframe animation
         
         // Need this to show field background
         self.opaque = NO;
@@ -411,7 +415,24 @@
         button2.backgroundColor = [UIColor purpleColor];
         [button2 addTarget:self action:@selector(playerPositionVerticalStack) forControlEvents:UIControlEventTouchUpInside];
         [self.controlBar addSubview:button2];
-
+        
+        
+        // Buttons for animation
+        UIButton *button3 = [[UIButton alloc] initWithFrame:CGRectMake(110, 10, 50, 50)];
+        button3.backgroundColor = [UIColor blueColor];
+        [button3 addTarget:self action:@selector(addKeyframe) forControlEvents:UIControlEventTouchUpInside];
+        [self.controlBar addSubview:button3];
+        
+        UIButton *button4 = [[UIButton alloc] initWithFrame:CGRectMake(160, 10, 50, 50)];
+        button4.backgroundColor = [UIColor greenColor];
+        [button4 addTarget:self action:@selector(playbackAnimation) forControlEvents:UIControlEventTouchUpInside];
+        [self.controlBar addSubview:button4];
+        
+        UIButton *button5 = [[UIButton alloc] initWithFrame:CGRectMake(210, 10, 50, 50)];
+        button5.backgroundColor = [UIColor redColor];
+        [button5 addTarget:self action:@selector(clearKeyframes) forControlEvents:UIControlEventTouchUpInside];
+        [self.controlBar addSubview:button5];
+        
         POPSpringAnimation *animation = [POPSpringAnimation animation];
         animation.property = [POPAnimatableProperty propertyWithName:kPOPViewCenter];
         animation.toValue = [NSValue valueWithCGPoint:CGPointMake(self.bounds.size.width/2.0, self.bounds.size.height-controlBarHeight/2.0)];
@@ -507,23 +528,89 @@
 }
 
 
-
-- (void)animateMarker:(HPDMarker *)marker toPosition:(CGPoint)newPosition
-{
-    CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"position"];
-    animation.fromValue = [NSValue valueWithCGPoint:marker.markerPosition];
-    animation.toValue = [NSValue valueWithCGPoint:newPosition];
-    marker.markerCALayer.position = newPosition;
-    marker.markerPosition = newPosition;
-    
-//    CGFloat dx = newPosition.x - marker.markerPosition.x;
-//    CGFloat dy = newPosition.y - marker.markerPosition.y;
-//    
-//    NSLog(@"Translating from:%@ to %@", NSStringFromCGPoint(marker.markerPosition), NSStringFromCGPoint(newPosition));
-//    animation.toValue = [NSValue valueWithCGSize:CGSizeMake(dx, dy)];
+//
+//- (void)animateMarker:(HPDMarker *)marker toPosition:(CGPoint)newPosition
+//{
+//    CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"position"];
+//    animation.fromValue = [NSValue valueWithCGPoint:marker.markerPosition];
+//    animation.toValue = [NSValue valueWithCGPoint:newPosition];
 //    marker.markerCALayer.position = newPosition;
-    [marker.markerCALayer addAnimation:animation forKey:nil];
+//    marker.markerPosition = newPosition;
+//    
+////    CGFloat dx = newPosition.x - marker.markerPosition.x;
+////    CGFloat dy = newPosition.y - marker.markerPosition.y;
+////    
+////    NSLog(@"Translating from:%@ to %@", NSStringFromCGPoint(marker.markerPosition), NSStringFromCGPoint(newPosition));
+////    animation.toValue = [NSValue valueWithCGSize:CGSizeMake(dx, dy)];
+////    marker.markerCALayer.position = newPosition;
+//    [marker.markerCALayer addAnimation:animation forKey:nil];
+//}
+
+// Using pop animtation
+- (void)animateMarker:(HPDMarker *)marker toPosition:(CGPoint)newPosition beginTime:(CFTimeInterval)beginTime
+{
+    POPBasicAnimation *animation = [POPBasicAnimation animation];
+    animation.property = [POPAnimatableProperty propertyWithName:kPOPLayerPosition];
+    animation.toValue = [NSValue valueWithCGPoint:newPosition];
+    animation.beginTime = beginTime;
+    animation.duration = self.keyframeDuration;
+    
+    [marker.markerCALayer pop_addAnimation:animation forKey:nil];
+    marker.markerPosition = newPosition;
 }
 
+#pragma mark - Marker Animated Strategy Methods
+
+- (void)addKeyframe
+{
+    self.animationMode = YES;
+    for (HPDMarker *marker in self.allMarkers) {
+        [marker addKeyframe];
+    }
+}
+
+- (void)playbackAnimation
+{
+    // If not in animation mode, meaning that no keyframes have been created, return
+    if (!self.animationMode) {
+        return;
+    }
+    
+    NSUInteger numberOfKeyframes = 0;
+    // Teleports all markers to original position
+    for (HPDMarker *marker in self.allMarkers) {
+        NSValue *firstPositionValue = [marker.keyframeArray firstObject];
+        CGPoint firstPositionCGPoint = firstPositionValue.CGPointValue;
+        
+        marker.markerPosition = firstPositionCGPoint;
+        [marker updateMarkerLayerDisableCATransaction:YES];
+        
+        numberOfKeyframes = [marker.keyframeArray count];
+    }
+    
+    CGFloat totalDuration = 0;
+    
+    for (int i = 1; i < numberOfKeyframes; i++) {
+    
+        for (HPDMarker *marker in self.allMarkers) {
+            NSValue *nextPositionValue = [marker.keyframeArray objectAtIndex:i];
+            CGPoint nextPositionCGPoint = nextPositionValue.CGPointValue;
+            [self animateMarker:marker toPosition:nextPositionCGPoint beginTime:CACurrentMediaTime() +totalDuration];
+        }
+        
+        totalDuration += self.keyframeDuration;
+        
+    }
+    
+}
+
+- (void)clearKeyframes
+{
+    for (HPDMarker *marker in self.allMarkers) {
+        [marker removeKeyframes];
+    }
+    
+    self.animationMode = NO;
+}
 
 @end

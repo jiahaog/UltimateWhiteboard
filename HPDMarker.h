@@ -26,12 +26,14 @@ typedef NS_ENUM(char, markerType) {
 @property (nonatomic) UIView *viewToDrawOn;
 
 // Previous locations
-@property (nonatomic) NSMutableArray *previousPositions;
+@property (nonatomic) NSArray *keyframeArray;
 
 // Designated Initiator
 - (instancetype)initWithMarkerType:(char)markerType viewToDrawOn:(UIView *)view markerNumber:(int)markerNumber;
 
 - (void)updateMarkerLayerDisableCATransaction:(BOOL)disableCATransaction;
 
+- (void)addKeyframe;
+- (void)removeKeyframes;
 
 @end

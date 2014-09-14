@@ -8,6 +8,11 @@
 
 #import "HPDMarker.h"
 
+@interface HPDMarker ()
+
+@property (nonatomic) NSMutableArray *privateKeyframeArray;
+
+@end
 
 @implementation HPDMarker
 
@@ -143,6 +148,28 @@
         
     }
     return self;
+}
+
+- (NSArray *)keyframeArray
+{
+    return self.privateKeyframeArray;
+}
+
+- (void)addKeyframe
+{
+    if (!self.privateKeyframeArray) {
+        self.privateKeyframeArray = [[NSMutableArray alloc] init];
+    }
+    
+    NSValue *markerPositionValue = [NSValue valueWithCGPoint:self.markerPosition];
+    
+    [self.privateKeyframeArray addObject:markerPositionValue];
+    
+}
+
+- (void)removeKeyframes
+{
+    self.privateKeyframeArray = nil;
 }
 
 @end
