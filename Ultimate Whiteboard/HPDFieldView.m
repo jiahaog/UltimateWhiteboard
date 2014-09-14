@@ -31,10 +31,12 @@
 @property (nonatomic) CALayer *selectionBoxLayer;
 @property (nonatomic) CGFloat largestZposition;
 
+// Property to hold controlbar
+@property (nonatomic) UIView *controlBar;
+
 // Options
 @property (nonatomic) int playersPerSide;
 @property (nonatomic) CGFloat touchoffset; // Offset for touches so that touched markers are not beneath the finger
-
 
 
 @end
@@ -67,20 +69,6 @@
         
 
         
-        
-        // Create buttons to allow changing of formations
-        
-        UIButton *button1 = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, 50, 50)];
-        button1.backgroundColor = [UIColor orangeColor];
-        [button1 addTarget:self action:@selector(playerPositionEndzoneLines) forControlEvents:UIControlEventTouchUpInside];
-        [self addSubview:button1];
-        
-        UIButton *button2 = [[UIButton alloc] initWithFrame:CGRectMake(60, 10, 50, 50)];
-        button2.backgroundColor = [UIColor purpleColor];
-        [button2 addTarget:self action:@selector(playerPositionVerticalStack) forControlEvents:UIControlEventTouchUpInside];
-        [self addSubview:button2];
-        
-        
         UIPinchGestureRecognizer *pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self
                                                                                               action:@selector(pinch:)];
         [self addGestureRecognizer:pinchRecognizer];
@@ -88,7 +76,14 @@
         UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tap)];
         [self addGestureRecognizer:tapRecognizer];
 
+        UITapGestureRecognizer *twoFingerTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(presentControlBar)];
+        twoFingerTapRecognizer.numberOfTouchesRequired = 2;
+        [self addGestureRecognizer:twoFingerTapRecognizer];
 
+        
+     
+        
+        
     }
     return self;
 }
@@ -99,7 +94,7 @@
 {
     
     self.allMarkers = [[HPDMarkerStore sharedStore] allMarkers];
-    
+   
     // If no data is stored
     if (!self.allMarkers) {
         
@@ -138,7 +133,7 @@
     
     
 
-
+ NSLog(@"%@", self.allMarkers);
 }
 
 - (void)playerPositionEndzoneLines
@@ -391,7 +386,56 @@
 - (void)tap
 {
     [self deselectMarkers];
+
+
 }
+
+- (void)presentControlBar
+{
+    
+    CGPoint positionOutsideScreen = CGPointMake(0, self.bounds.size.height + 100);
+    CGFloat controlBarHeight = 80;
+    
+    if (!self.controlBar) {
+        self.controlBar = [[UIView alloc] initWithFrame:CGRectMake(0, positionOutsideScreen.y, self.bounds.size.width, controlBarHeight)];
+        self.controlBar.backgroundColor = [UIColor grayColor];
+        self.controlBar.alpha = 0.7;
+        [self addSubview:self.controlBar];
+        
+        UIButton *button1 = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, 50, 50)];
+        button1.backgroundColor = [UIColor orangeColor];
+        [button1 addTarget:self action:@selector(playerPositionEndzoneLines) forControlEvents:UIControlEventTouchUpInside];
+        [self.controlBar addSubview:button1];
+        
+        UIButton *button2 = [[UIButton alloc] initWithFrame:CGRectMake(60, 10, 50, 50)];
+        button2.backgroundColor = [UIColor purpleColor];
+        [button2 addTarget:self action:@selector(playerPositionVerticalStack) forControlEvents:UIControlEventTouchUpInside];
+        [self.controlBar addSubview:button2];
+
+        POPSpringAnimation *animation = [POPSpringAnimation animation];
+        animation.property = [POPAnimatableProperty propertyWithName:kPOPViewCenter];
+        animation.toValue = [NSValue valueWithCGPoint:CGPointMake(self.bounds.size.width/2.0, self.bounds.size.height-controlBarHeight/2.0)];
+        [self.controlBar pop_addAnimation:animation forKey:nil];
+        
+        
+    } else {
+        POPSpringAnimation *animation = [POPSpringAnimation animation];
+        animation.property = [POPAnimatableProperty propertyWithName:kPOPViewCenter];
+        animation.toValue = [NSValue valueWithCGPoint:CGPointMake(self.bounds.size.width/2.0, positionOutsideScreen.y)];
+        [self.controlBar pop_addAnimation:animation forKey:nil];
+        
+        
+//        [self.controlBar removeFromSuperview];
+        self.controlBar = nil;
+        
+        
+    }
+    
+    
+    
+}
+
+
 #pragma mark - Helper Selection Methods
 
 - (HPDMarker *)markerAtPoint:(CGPoint)point

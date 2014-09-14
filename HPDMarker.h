@@ -25,6 +25,9 @@ typedef NS_ENUM(char, markerType) {
 @property (nonatomic) CGFloat markerWidth;
 @property (nonatomic) UIView *viewToDrawOn;
 
+// Previous locations
+@property (nonatomic) NSMutableArray *previousPositions;
+
 // Designated Initiator
 - (instancetype)initWithMarkerType:(char)markerType viewToDrawOn:(UIView *)view markerNumber:(int)markerNumber;
 

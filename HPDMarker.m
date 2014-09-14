@@ -93,7 +93,7 @@
         
         self.markerCALayer.backgroundColor = markerColor.CGColor;
     }
-//    NSLog(@"Updating Position to: %@", NSStringFromCGPoint(self.markerPosition));
+
 
     self.markerCALayer.cornerRadius = self.markerWidth/2.0;
 
@@ -103,6 +103,7 @@
     // Anti aliasing
     self.markerCALayer.rasterizationScale = [UIScreen mainScreen].scale;
     self.markerCALayer.shouldRasterize = YES;
+
 
     
     if (disableCATransaction) {

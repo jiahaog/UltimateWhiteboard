@@ -37,9 +37,7 @@
         NSString *path = [self markerArchivePath];
         _privateMarkers = [NSKeyedUnarchiver unarchiveObjectWithFile:path];
         
-        if (!_privateMarkers) {
-            _privateMarkers = [[NSMutableArray alloc] init];
-        }
+
         
     }
     
@@ -63,6 +61,9 @@
 
 - (void)addMarker:(HPDMarker *)marker
 {
+    if (!_privateMarkers) {
+        _privateMarkers = [[NSMutableArray alloc] init];
+    }
     [self.privateMarkers addObject:marker];
 }
 
