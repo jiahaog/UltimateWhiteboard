@@ -12,6 +12,7 @@
 #import "HPDMarker.h"
 #import "HPDFieldBackground.h"
 #import "HPDMarkerStore.h"
+#import "HPDPlaybackScrubberView.h"
 
 @interface HPDFieldView ()
 
@@ -31,8 +32,9 @@
 @property (nonatomic) CALayer *selectionBoxLayer;
 @property (nonatomic) CGFloat largestZposition;
 
-// Property to hold controlbar
+// Property to hold views
 @property (nonatomic) UIView *controlBar;
+@property (nonatomic) HPDPlaybackScrubberView *playbackScrubberView;
 
 // Property to track if animation mode has started
 @property (nonatomic) BOOL animationMode;
@@ -135,9 +137,6 @@
         }
     }
     
-    
-
- NSLog(@"%@", self.allMarkers);
 }
 
 - (void)playerPositionEndzoneLines
@@ -162,6 +161,10 @@
         [marker updateMarkerLayerDisableCATransaction:NO];
         
     }
+    
+    // Add notification on screen to inform user of action
+    [self presentNotification:@"Pull"];
+
     
 }
 
@@ -188,6 +191,7 @@
         
         CGFloat markingDistance = marker.markerWidth*1.7;
         CGFloat centerXDefenderPosition = centerX + markingDistance;
+        
         // Vertical and horizontal distances for markers positioned 45 degrees away
         CGFloat distanceY = markingDistance*1/sqrtf(2);
 
@@ -205,9 +209,7 @@
                 marker.markerPosition = handler2Position;
                 handler2 = marker;
             }
-        }
-        
-        if (marker.markerType == HPDMarkerTypeRedPlayer) {
+        } else if (marker.markerType == HPDMarkerTypeRedPlayer) {
 
             if (marker.markerNumber >= 3) {
                 CGFloat newMarkerY = bottomEndzoneLineY - redCounter * interval;
@@ -221,13 +223,16 @@
                 CGPoint position = CGPointMake(handler2.markerPosition.x, handler2.markerPosition.y - markingDistance);
                 marker.markerPosition = position;
             }
+        } else if (marker.markerType == HPDMarkerTypeDisc) {
+            marker.markerPosition = CGPointMake(handler1.markerPosition.x, handler1.markerPosition.y - distanceY);
         }
-        
+    
         [marker updateMarkerLayerDisableCATransaction:NO];
         
     }
 
-    
+    // Add notification on screen to inform user of action
+    [self presentNotification:@"Vertical Stack"];
 }
 
 #pragma mark - Touch Methods
@@ -394,11 +399,14 @@
 
 }
 
+
+#pragma mark - UIView Methods
+
 - (void)presentControlBar
 {
     
     CGPoint positionOutsideScreen = CGPointMake(0, self.bounds.size.height + 100);
-    CGFloat controlBarHeight = 80;
+    CGFloat controlBarHeight = 60;
     
     if (!self.controlBar) {
         self.controlBar = [[UIView alloc] initWithFrame:CGRectMake(0, positionOutsideScreen.y, self.bounds.size.width, controlBarHeight)];
@@ -444,14 +452,52 @@
         animation.property = [POPAnimatableProperty propertyWithName:kPOPViewCenter];
         animation.toValue = [NSValue valueWithCGPoint:CGPointMake(self.bounds.size.width/2.0, positionOutsideScreen.y)];
         [self.controlBar pop_addAnimation:animation forKey:nil];
-        
-        
-//        [self.controlBar removeFromSuperview];
+
         self.controlBar = nil;
-        
-        
     }
+}
+
+- (void)presentNotification:(NSString *)notificationText
+{
+    // Options
+    CGFloat timeNotificationStaysOn = 0.5; // Time notification stays on screen
+    CGFloat padding = 10;     // How much larger (extra width) the background of label is
     
+    UILabel *labelText = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 10, 50)];
+    labelText.text = notificationText;
+    labelText.font = [labelText.font fontWithSize:13];
+    labelText.textColor = [UIColor whiteColor];
+    labelText.alpha = 0.7;
+    [labelText sizeToFit];
+    
+
+    
+    UIView *labelView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, labelText.frame.size.width + padding, labelText.frame.size.height + padding)];
+    labelView.backgroundColor = [UIColor blackColor];
+    labelView.alpha = 0.7;
+    labelView.layer.cornerRadius = 3;
+    [labelView addSubview:labelText];
+    labelText.center = labelView.center;
+    
+    [labelView setCenter:CGPointMake(self.bounds.size.width/2.0, 60)];
+    [self addSubview:labelView];
+    
+    POPBasicAnimation *animateIn = [POPBasicAnimation animation];
+    animateIn.property = [POPAnimatableProperty propertyWithName:kPOPViewAlpha];
+    animateIn.fromValue = @(0);
+    animateIn.toValue = [NSNumber numberWithFloat:labelView.alpha];
+    [labelView pop_addAnimation:animateIn forKey:nil];
+
+    
+    CGFloat animateInDuration = animateIn.duration;
+    
+
+    
+    POPSpringAnimation *animateOut = [POPSpringAnimation animation];
+    animateOut.property = [POPAnimatableProperty propertyWithName:kPOPViewAlpha];
+    animateOut.toValue = @(0);
+    animateOut.beginTime = CACurrentMediaTime() + animateInDuration + timeNotificationStaysOn;
+    [labelView pop_addAnimation:animateOut forKey:nil];
     
     
 }
@@ -567,6 +613,26 @@
     for (HPDMarker *marker in self.allMarkers) {
         [marker addKeyframe];
     }
+    
+    
+    // Add playback scrubber bar
+    if (!self.playbackScrubberView) {
+        self.playbackScrubberView = [[HPDPlaybackScrubberView alloc] initWithFrame:CGRectMake(25, 15, self.bounds.size.width - 60, 20)];
+//        self.playbackScrubberView.center = CGPointMake(self.center.x, 60);
+        [self addSubview:self.playbackScrubberView];
+    }
+    
+    // If number of keyframes exceed the screen, return
+    if (self.playbackScrubberView.numberOfKeyframes >= 10) {
+        [self presentNotification:@"Too many keyframes"];
+        return;
+    }
+    
+    [self.playbackScrubberView newKeyframe];
+    
+    // Add notification on screen to inform user of action
+    [self presentNotification:@"Keyframe Added"];
+
 }
 
 - (void)playbackAnimation
@@ -575,6 +641,7 @@
     if (!self.animationMode) {
         return;
     }
+    
     
     NSUInteger numberOfKeyframes = 0;
     // Teleports all markers to original position
@@ -602,6 +669,9 @@
         
     }
     
+    // Add notification on screen to inform user of action
+    [self presentNotification:@"Playing Animation"];
+    
 }
 
 - (void)clearKeyframes
@@ -611,6 +681,14 @@
     }
     
     self.animationMode = NO;
+    
+    // Remove from scrubber
+    [self.playbackScrubberView clearKeyframes];
+    
+    // Add notification on screen to inform user of action
+    [self presentNotification:@"Keyframes Cleared"];
+
+    
 }
 
 @end
