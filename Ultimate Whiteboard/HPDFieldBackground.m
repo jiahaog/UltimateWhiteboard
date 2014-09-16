@@ -15,7 +15,7 @@
     self = [super initWithFrame:frame];
     if (self) {
         // Initialization code
-        self.backgroundColor = [UIColor greenColor];
+        self.backgroundColor = [UIColor colorWithRed:46.0/255 green:204.0/255 blue:113.0/255 alpha:1]; //flatuicolors emerald
     }
     return self;
 }

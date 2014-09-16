@@ -35,6 +35,7 @@
 // Property to hold views
 @property (nonatomic) UIView *controlBar;
 @property (nonatomic) HPDPlaybackScrubberView *playbackScrubberView;
+@property (nonatomic) UIView *notificationForUser;
 
 // Property to track if animation mode has started
 @property (nonatomic) BOOL animationMode;
@@ -84,9 +85,13 @@
 
         UITapGestureRecognizer *twoFingerTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(presentControlBar)];
         twoFingerTapRecognizer.numberOfTouchesRequired = 2;
+        twoFingerTapRecognizer.cancelsTouchesInView = YES;
         [self addGestureRecognizer:twoFingerTapRecognizer];
 
-        
+        UIButton *buttonToShowControlBar = [[UIButton alloc] initWithFrame:CGRectMake(self.bounds.size.width - 50, 0, 50, 50)];
+        buttonToShowControlBar.backgroundColor = [UIColor orangeColor];
+        [buttonToShowControlBar addTarget:self action:@selector(presentControlBar) forControlEvents:UIControlEventTouchUpInside];
+        [self addSubview:buttonToShowControlBar];
      
         
         
@@ -189,7 +194,7 @@
     
     for (HPDMarker *marker in self.allMarkers) {
         
-        CGFloat markingDistance = marker.markerWidth*1.7;
+        CGFloat markingDistance = marker.markerWidth*1.5;
         CGFloat centerXDefenderPosition = centerX + markingDistance;
         
         // Vertical and horizontal distances for markers positioned 45 degrees away
@@ -233,6 +238,24 @@
 
     // Add notification on screen to inform user of action
     [self presentNotification:@"Vertical Stack"];
+}
+
+- (void)togglePlayerPositions
+{
+    static int previousPosition;
+    
+    if (!previousPosition) {
+        previousPosition = 1;
+    }
+    
+    if (previousPosition == 1) {
+        [self playerPositionVerticalStack];
+        previousPosition = 2;
+    } else if (previousPosition == 2) {
+        [self playerPositionEndzoneLines];
+        previousPosition = 1;
+    }
+    
 }
 
 #pragma mark - Touch Methods
@@ -301,6 +324,11 @@
     // Make disc on top of everything
     self.discMarker.markerCALayer.zPosition = self.largestZposition;
     [self.discMarker updateMarkerLayerDisableCATransaction:YES];
+}
+
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    [self deselectMarkers];
 }
 
 #pragma mark Gesture Methods
@@ -406,7 +434,9 @@
 {
     
     CGPoint positionOutsideScreen = CGPointMake(0, self.bounds.size.height + 100);
-    CGFloat controlBarHeight = 60;
+    CGFloat controlBarHeight = 50;
+    
+
     
     if (!self.controlBar) {
         self.controlBar = [[UIView alloc] initWithFrame:CGRectMake(0, positionOutsideScreen.y, self.bounds.size.width, controlBarHeight)];
@@ -414,29 +444,29 @@
         self.controlBar.alpha = 0.7;
         [self addSubview:self.controlBar];
         
-        UIButton *button1 = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, 50, 50)];
+        UIButton *button1 = [[UIButton alloc] initWithFrame:CGRectMake(10, 0, 50, 50)];
         button1.backgroundColor = [UIColor orangeColor];
-        [button1 addTarget:self action:@selector(playerPositionEndzoneLines) forControlEvents:UIControlEventTouchUpInside];
+        [button1 addTarget:self action:@selector(togglePlayerPositions) forControlEvents:UIControlEventTouchUpInside];
         [self.controlBar addSubview:button1];
         
-        UIButton *button2 = [[UIButton alloc] initWithFrame:CGRectMake(60, 10, 50, 50)];
-        button2.backgroundColor = [UIColor purpleColor];
-        [button2 addTarget:self action:@selector(playerPositionVerticalStack) forControlEvents:UIControlEventTouchUpInside];
-        [self.controlBar addSubview:button2];
+//        UIButton *button2 = [[UIButton alloc] initWithFrame:CGRectMake(60, 10, 50, 50)];
+//        button2.backgroundColor = [UIColor purpleColor];
+//        [button2 addTarget:self action:@selector(playerPositionVerticalStack) forControlEvents:UIControlEventTouchUpInside];
+//        [self.controlBar addSubview:button2];
         
         
         // Buttons for animation
-        UIButton *button3 = [[UIButton alloc] initWithFrame:CGRectMake(110, 10, 50, 50)];
+        UIButton *button3 = [[UIButton alloc] initWithFrame:CGRectMake(110, 0, 50, controlBarHeight)];
         button3.backgroundColor = [UIColor blueColor];
         [button3 addTarget:self action:@selector(addKeyframe) forControlEvents:UIControlEventTouchUpInside];
         [self.controlBar addSubview:button3];
         
-        UIButton *button4 = [[UIButton alloc] initWithFrame:CGRectMake(160, 10, 50, 50)];
+        UIButton *button4 = [[UIButton alloc] initWithFrame:CGRectMake(160, 0, 50, controlBarHeight)];
         button4.backgroundColor = [UIColor greenColor];
         [button4 addTarget:self action:@selector(playbackAnimation) forControlEvents:UIControlEventTouchUpInside];
         [self.controlBar addSubview:button4];
         
-        UIButton *button5 = [[UIButton alloc] initWithFrame:CGRectMake(210, 10, 50, 50)];
+        UIButton *button5 = [[UIButton alloc] initWithFrame:CGRectMake(210, 0, 50, controlBarHeight)];
         button5.backgroundColor = [UIColor redColor];
         [button5 addTarget:self action:@selector(clearKeyframes) forControlEvents:UIControlEventTouchUpInside];
         [self.controlBar addSubview:button5];
@@ -459,6 +489,10 @@
 
 - (void)presentNotification:(NSString *)notificationText
 {
+    // Prevents overlapping notifications
+    if (self.notificationForUser) {
+        [self.notificationForUser removeFromSuperview];
+    }
     // Options
     CGFloat timeNotificationStaysOn = 0.5; // Time notification stays on screen
     CGFloat padding = 10;     // How much larger (extra width) the background of label is
@@ -478,9 +512,10 @@
     labelView.layer.cornerRadius = 3;
     [labelView addSubview:labelText];
     labelText.center = labelView.center;
-    
     [labelView setCenter:CGPointMake(self.bounds.size.width/2.0, 60)];
+    
     [self addSubview:labelView];
+    self.notificationForUser = labelView;
     
     POPBasicAnimation *animateIn = [POPBasicAnimation animation];
     animateIn.property = [POPAnimatableProperty propertyWithName:kPOPViewAlpha];
@@ -535,6 +570,7 @@
 - (void)animateMarkerSelected:(HPDMarker *)marker selected:(BOOL)selected offsetMarker:(BOOL)offsetMarker
 {
     CGFloat scaleFactor = 1.4;
+
     
     if (!selected) {
         scaleFactor = 1.0;
@@ -554,6 +590,8 @@
     springAnimation.springBounciness = 20;
     springAnimation.springSpeed = 3;
     springAnimation.toValue = [NSValue valueWithCGSize:CGSizeMake(scaleFactor, scaleFactor)];
+    
+
     [marker.markerCALayer pop_addAnimation:springAnimation forKey:nil];
     
     
@@ -572,25 +610,6 @@
         [marker.markerCALayer pop_addAnimation:translateAnimation forKey:nil];
     }
 }
-
-
-//
-//- (void)animateMarker:(HPDMarker *)marker toPosition:(CGPoint)newPosition
-//{
-//    CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"position"];
-//    animation.fromValue = [NSValue valueWithCGPoint:marker.markerPosition];
-//    animation.toValue = [NSValue valueWithCGPoint:newPosition];
-//    marker.markerCALayer.position = newPosition;
-//    marker.markerPosition = newPosition;
-//    
-////    CGFloat dx = newPosition.x - marker.markerPosition.x;
-////    CGFloat dy = newPosition.y - marker.markerPosition.y;
-////    
-////    NSLog(@"Translating from:%@ to %@", NSStringFromCGPoint(marker.markerPosition), NSStringFromCGPoint(newPosition));
-////    animation.toValue = [NSValue valueWithCGSize:CGSizeMake(dx, dy)];
-////    marker.markerCALayer.position = newPosition;
-//    [marker.markerCALayer addAnimation:animation forKey:nil];
-//}
 
 // Using pop animtation
 - (void)animateMarker:(HPDMarker *)marker toPosition:(CGPoint)newPosition beginTime:(CFTimeInterval)beginTime
@@ -664,12 +683,16 @@
             CGPoint nextPositionCGPoint = nextPositionValue.CGPointValue;
             [self animateMarker:marker toPosition:nextPositionCGPoint beginTime:CACurrentMediaTime() +totalDuration];
         }
-        
+
+
         totalDuration += self.keyframeDuration;
-        
+
     }
     
+    [self.playbackScrubberView scrubberPlaybackToKeyframe:(int)numberOfKeyframes-1 duration:self.keyframeDuration*numberOfKeyframes-1 beginTime:NO];
+    
     // Add notification on screen to inform user of action
+
     [self presentNotification:@"Playing Animation"];
     
 }

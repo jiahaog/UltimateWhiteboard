@@ -14,6 +14,7 @@
 
 - (void)newKeyframe;
 - (void)clearKeyframes;
+- (void)scrubberPlaybackToKeyframe:(int)keyframeNumber duration:(CGFloat)duration beginTime:(CFTimeInterval)beginTime;
 
 
 

@@ -474,6 +474,7 @@
 				INFOPLIST_FILE = "Ultimate Whiteboard/Ultimate Whiteboard-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -491,6 +492,7 @@
 				INFOPLIST_FILE = "Ultimate Whiteboard/Ultimate Whiteboard-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

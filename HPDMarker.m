@@ -21,7 +21,7 @@
     self = [super init];
     
     _markerType = markerType;
-    _markerWidth = 20;
+    _markerWidth = 24;
     _viewToDrawOn = view;
     _markerNumber = markerNumber;
     
@@ -55,21 +55,25 @@
         self.markerCALayer.zPosition = 0;
         
         UIColor *markerColor = nil;
+        CGFloat markerWidth = self.markerWidth;
         UIColor *markerStroke = [UIColor clearColor];
         
         
         switch (self.markerType) {
             case HPDMarkerTypeBluePlayer:
-                markerColor = [UIColor blueColor];
+//                markerColor = [UIColor blueColor];
+                markerColor = [UIColor colorWithRed:52.0/255 green:152.0/255 blue:219.0/255 alpha:1.0]; //flatuicolors peter river
                 break;
             case HPDMarkerTypeRedPlayer:
-                markerColor = [UIColor redColor];
+//                markerColor = [UIColor redColor];
+                markerColor = [UIColor colorWithRed:211.0/255 green:84.0/255 blue:0 alpha:1.0]; //flatuicolors pumpkin
                 break;
             case HPDMarkerTypeDisc:
-                markerColor = [UIColor whiteColor];
-                markerStroke = [UIColor blackColor];
+                markerColor = [UIColor colorWithRed:236.0/255 green:240.0/255 blue:241.0/255 alpha:1.0]; //flatuicolors clouds
+                markerStroke = [UIColor colorWithRed:127.0/255 green:140.0/255 blue:141.0/255 alpha:1.0]; //flatuicolors asbestos
                 self.markerCALayer.borderWidth = 1.5;
                 self.markerCALayer.borderColor = markerStroke.CGColor;
+                markerWidth = self.markerWidth*0.8;
                 break;
             default:
                 break;
@@ -80,9 +84,9 @@
         if (self.markerType != HPDMarkerTypeDisc) {
             // Create label
             CATextLayer *label = [[CATextLayer alloc] init];
-            [label setFont:@"Helvetica-Bold"];
-            [label setFontSize:14];
-            [label setFrame:CGRectMake(0, 1, 20, 20)];
+            [label setFont:@"AvenirNext-UltraLight"];
+            [label setFontSize:18];
+            [label setFrame:CGRectMake(0, 0, markerWidth, markerWidth)];
             [label setString:[NSString stringWithFormat:@"%d", self.markerNumber]];
             [label setAlignmentMode:kCAAlignmentCenter];
             [label setForegroundColor:[UIColor whiteColor].CGColor];
@@ -97,17 +101,18 @@
         
         
         self.markerCALayer.backgroundColor = markerColor.CGColor;
+        self.markerCALayer.cornerRadius = markerWidth/2.0;
+        self.markerCALayer.bounds = CGRectMake(0, 0, markerWidth, markerWidth);
+        // Anti aliasing
+        self.markerCALayer.rasterizationScale = [UIScreen mainScreen].scale;
+        self.markerCALayer.shouldRasterize = YES;
+
     }
 
 
-    self.markerCALayer.cornerRadius = self.markerWidth/2.0;
 
-    self.markerCALayer.bounds = CGRectMake(0, 0, self.markerWidth, self.markerWidth);
     self.markerCALayer.position = self.markerPosition;
     
-    // Anti aliasing
-    self.markerCALayer.rasterizationScale = [UIScreen mainScreen].scale;
-    self.markerCALayer.shouldRasterize = YES;
 
 
     
