@@ -124,8 +124,9 @@
 
     // Cleanup
     self.numberOfKeyframes += 1;
+    NSLog(@"%i", self.numberOfKeyframes);
     [self.keyframePointArray addObject:pointView];
-    [self scrubberPlaybackToKeyframe:0 duration:NO beginTime:NO]; // Removes scrubber if keyframe is added after scrubber is visible
+    [self scrubberPlaybackFromKeyframe:NO toKeyframe:1 duration:NO beginTime:NO]; // Removes scrubber if keyframe is added after scrubber is visible
 }
 
 - (void)clearKeyframes
@@ -164,17 +165,22 @@
      ];
  
     [self.linkRectangle pop_addAnimation:linkRectangleAnimateOut forKey:nil];
-    [self scrubberPlaybackToKeyframe:0 duration:NO beginTime:NO];
+    [self scrubberPlaybackFromKeyframe:self.numberOfKeyframes toKeyframe:1 duration:NO beginTime:NO];
     self.linkRectangle = nil;
     self.numberOfKeyframes = 0;
 }
 
 
-- (void)scrubberPlaybackToKeyframe:(int)keyframeNumber duration:(CGFloat)duration beginTime:(CFTimeInterval)beginTime
+- (void)scrubberPlaybackFromKeyframe:(int)startKeyframe toKeyframe:(int)endKeyframe duration:(CGFloat)duration beginTime:(CFTimeInterval)beginTime
 {
 
 //    UIColor *scrubberColor = [UIColor colorWithRed:230.0/255 green:126.0/255 blue:34.0/255 alpha:1.0]; //flatuicolors carrot
     UIColor *scrubberColor = [UIColor colorWithRed:236.0/255 green:240.0/255 blue:241.0/255 alpha:1.0]; //flatuicolors clouds
+    
+//    if (self.numberOfKeyframes >= 2) {
+//        [self.linkRectangleScrubber removeFromSuperview];
+//        self.linkRectangleScrubber = nil;
+//    }
     
     if (!self.linkRectangleScrubber) {
         self.linkRectangleScrubber = [[UIView alloc] initWithFrame:CGRectMake(0, self.linkRectangle.frame.size.height/4.0, 0, self.linkRectangle.frame.size.height/2.0)];
@@ -183,12 +189,18 @@
         [self.linkRectangle insertSubview:self.linkRectangleScrubber atIndex:0];
     }
 
-    
-    CGFloat rightEdgeOfRectPoint = self.gapBetweenPoints * keyframeNumber;
+    CGFloat currentRightEdgeOfRect = self.gapBetweenPoints * (startKeyframe-1);
+    CGFloat newRightEdgeOfRect = self.gapBetweenPoints * (endKeyframe-1);
     
     POPBasicAnimation *linkRectangleAnimation = [POPBasicAnimation linearAnimation];
     linkRectangleAnimation.property = [POPAnimatableProperty propertyWithName:kPOPViewFrame];
-    linkRectangleAnimation.toValue = [NSValue valueWithCGRect:CGRectMake(self.linkRectangleScrubber.frame.origin.x, self.linkRectangleScrubber.frame.origin.y, rightEdgeOfRectPoint, self.linkRectangleScrubber.bounds.size.height)];
+    
+    if (startKeyframe) {
+        linkRectangleAnimation.fromValue = [NSValue valueWithCGRect:CGRectMake(self.linkRectangleScrubber.frame.origin.x, self.linkRectangleScrubber.frame.origin.y, currentRightEdgeOfRect, self.linkRectangleScrubber.bounds.size.height)];
+    }
+    
+
+    linkRectangleAnimation.toValue = [NSValue valueWithCGRect:CGRectMake(self.linkRectangleScrubber.frame.origin.x, self.linkRectangleScrubber.frame.origin.y, newRightEdgeOfRect, self.linkRectangleScrubber.bounds.size.height)];
     
     // To configure options
     if (duration) {
@@ -203,7 +215,8 @@
         linkRectangleAnimation.beginTime = 0;
     }
     
-    if (keyframeNumber == 0) {
+    // If keyframe number is one, animate out and remove the scrubber
+    if (endKeyframe == 1) {
         [linkRectangleAnimation setCompletionBlock:^(POPAnimation *anim, BOOL finished) {
             
             [self.linkRectangleScrubber removeFromSuperview];

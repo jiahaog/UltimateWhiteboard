@@ -37,6 +37,9 @@
 @property (nonatomic) HPDPlaybackScrubberView *playbackScrubberView;
 @property (nonatomic) UIView *notificationForUser;
 
+// Property to track keyframes
+@property (nonatomic) int currentKeyframe;
+
 // Property to track if animation mode has started
 @property (nonatomic) BOOL animationMode;
 
@@ -463,7 +466,7 @@
         
         UIButton *button4 = [[UIButton alloc] initWithFrame:CGRectMake(160, 0, 50, controlBarHeight)];
         button4.backgroundColor = [UIColor greenColor];
-        [button4 addTarget:self action:@selector(playbackAnimation) forControlEvents:UIControlEventTouchUpInside];
+        [button4 addTarget:self action:@selector(playbackFullAnimation) forControlEvents:UIControlEventTouchUpInside];
         [self.controlBar addSubview:button4];
         
         UIButton *button5 = [[UIButton alloc] initWithFrame:CGRectMake(210, 0, 50, controlBarHeight)];
@@ -654,7 +657,24 @@
 
 }
 
-- (void)playbackAnimation
+- (void)playbackFullAnimation
+{
+    [self playbackAnimationfromFrame:0 toFrame:0];
+}
+
+- (void)playBackForwardToNextKeyframe
+{
+    if (self.currentKeyframe < self.playbackScrubberView.numberOfKeyframes) {
+        [self playbackAnimationfromFrame:self.currentKeyframe toFrame:self.currentKeyframe+1];
+        self.currentKeyframe+= 1;
+    } else {
+        self.currentKeyframe = 1;
+        [self playbackAnimationfromFrame:self.currentKeyframe toFrame:self.currentKeyframe+1];
+        self.currentKeyframe+= 1;
+    }
+}
+
+- (void)playbackAnimationfromFrame:(int)startFrameNumber toFrame:(int)endFrameNumber
 {
     // If not in animation mode, meaning that no keyframes have been created, return
     if (!self.animationMode) {
@@ -662,7 +682,6 @@
     }
     
     
-    NSUInteger numberOfKeyframes = 0;
     // Teleports all markers to original position
     for (HPDMarker *marker in self.allMarkers) {
         NSValue *firstPositionValue = [marker.keyframeArray firstObject];
@@ -670,13 +689,11 @@
         
         marker.markerPosition = firstPositionCGPoint;
         [marker updateMarkerLayerDisableCATransaction:YES];
-        
-        numberOfKeyframes = [marker.keyframeArray count];
     }
     
     CGFloat totalDuration = 0;
     
-    for (int i = 1; i < numberOfKeyframes; i++) {
+    for (int i = 1; i < self.playbackScrubberView.numberOfKeyframes; i++) {
     
         for (HPDMarker *marker in self.allMarkers) {
             NSValue *nextPositionValue = [marker.keyframeArray objectAtIndex:i];
@@ -689,7 +706,7 @@
 
     }
     
-    [self.playbackScrubberView scrubberPlaybackToKeyframe:(int)numberOfKeyframes-1 duration:self.keyframeDuration*numberOfKeyframes-1 beginTime:NO];
+    [self.playbackScrubberView scrubberPlaybackFromKeyframe:1 toKeyframe:(int)self.playbackScrubberView.numberOfKeyframes duration:self.keyframeDuration*(self.playbackScrubberView.numberOfKeyframes-1) beginTime:NO];
     
     // Add notification on screen to inform user of action
 
@@ -713,5 +730,6 @@
 
     
 }
+
 
 @end

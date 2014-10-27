@@ -21,7 +21,20 @@
     self = [super init];
     
     _markerType = markerType;
-    _markerWidth = 24;
+//    _markerWidth = 24;
+    
+    // Check for device type
+    NSString *deviceType = [UIDevice currentDevice].model;
+    
+    if([deviceType isEqualToString:@"iPad"]) {
+        _markerWidth = 40;
+    } else {
+        // iPhone or iPod touch
+        _markerWidth = 28;
+    }
+    
+    
+    
     _viewToDrawOn = view;
     _markerNumber = markerNumber;
     
@@ -85,7 +98,11 @@
             // Create label
             CATextLayer *label = [[CATextLayer alloc] init];
             [label setFont:@"AvenirNext-UltraLight"];
-            [label setFontSize:18];
+            
+            // Font size is dependent on markerwidth to make sure it vertically centres itself
+            // Constraint: font size 18 at a marker width of 24
+            [label setFontSize:markerWidth/1.3333];
+
             [label setFrame:CGRectMake(0, 0, markerWidth, markerWidth)];
             [label setString:[NSString stringWithFormat:@"%d", self.markerNumber]];
             [label setAlignmentMode:kCAAlignmentCenter];
@@ -136,6 +153,7 @@
     [aCoder encodeInt:self.markerNumber forKey:@"markerNumber"];
     [aCoder encodeObject:self.markerCALayer forKey:@"markerCALayer"];
     [aCoder encodeFloat:self.markerWidth forKey:@"markerWidth"];
+    [aCoder encodeObject:self.keyframeArray forKey:@"keyframeArray"];
     
 }
 
@@ -149,6 +167,7 @@
         _markerCALayer = [aDecoder decodeObjectForKey:@"markerCALayer"];
         _markerWidth = [aDecoder decodeFloatForKey:@"markerWidth"];
         _viewToDrawOn = [aDecoder decodeObjectForKey:@"viewToDrawOn"];
+        _keyframeArray = [aDecoder decodeObjectForKey:@"keyframeArray"];
 
         
     }
