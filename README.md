@@ -1,6 +1,6 @@
 UltimateWhiteboard
 ==================
-A virtual whiteboard universal iOS application for, but not limited to the Ultimate Frisbee Sport. 
+An universal iOS application designed to act as a virtual whiteboard for the Ultimate Frisbee Sport. 
 Animations made with [Facebook's Pop animation framework](https://github.com/facebook/pop)
 
 ## Functions
@@ -15,7 +15,7 @@ Animations made with [Facebook's Pop animation framework](https://github.com/fac
 4. Run the project
 
 ## User Interface Considerations
-The markers will animate themselves a few points up from the original `touches` location, so that the user's finger does not obstruct the display of the marker.
+The markers will animate themselves a few points up from the original `touches` location when touched, so that the user's finger does not obstruct the display of the marker.
 
 ## Work in progress
 * Replace placeholder buttons with proper buttons
