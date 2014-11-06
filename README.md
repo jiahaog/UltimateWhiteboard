@@ -1,6 +1,6 @@
 UltimateWhiteboard
 ==================
-An universal iOS application designed to act as a virtual whiteboard for the Ultimate Frisbee Sport. 
+A universal iOS application designed to act as a virtual whiteboard for the Ultimate Frisbee Sport. 
 Animations made with [Facebook's Pop animation framework](https://github.com/facebook/pop)
 
 Compatible with iOS 7.x - 8.1
@@ -12,6 +12,7 @@ Compatible with iOS 7.x - 8.1
 * Two finger pinch to select and manipulate multiple markers
 * Toggle between built in formations
 * Keyframe animation system to record and playback tactics
+* Dynamically scales to fit screen sizes
 
 ## Getting Started
 1. Clone the repo
