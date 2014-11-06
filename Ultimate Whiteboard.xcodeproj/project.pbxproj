@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		21EFBA3E65F64FBBBCCB8D4C /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2532FD7558BA4151A1165444 /* libPods.a */; };
+		973A10E91A0B29D10000DD90 /* Podfile in Resources */ = {isa = PBXBuildFile; fileRef = 973A10E71A0B29D10000DD90 /* Podfile */; };
+		973A10EA1A0B29D10000DD90 /* Podfile.lock in Resources */ = {isa = PBXBuildFile; fileRef = 973A10E81A0B29D10000DD90 /* Podfile.lock */; };
 		97631F211987730F007CA49A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97631F201987730F007CA49A /* Foundation.framework */; };
 		97631F231987730F007CA49A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97631F221987730F007CA49A /* CoreGraphics.framework */; };
 		97631F251987730F007CA49A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97631F241987730F007CA49A /* UIKit.framework */; };
@@ -42,6 +44,8 @@
 /* Begin PBXFileReference section */
 		13403DBA2094463DAA1C20B6 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
 		2532FD7558BA4151A1165444 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		973A10E71A0B29D10000DD90 /* Podfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Podfile; sourceTree = "<group>"; };
+		973A10E81A0B29D10000DD90 /* Podfile.lock */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Podfile.lock; sourceTree = "<group>"; };
 		97631F1D1987730F007CA49A /* Ultimate Whiteboard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Ultimate Whiteboard.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		97631F201987730F007CA49A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		97631F221987730F007CA49A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -101,6 +105,8 @@
 		97631F141987730F007CA49A = {
 			isa = PBXGroup;
 			children = (
+				973A10E71A0B29D10000DD90 /* Podfile */,
+				973A10E81A0B29D10000DD90 /* Podfile.lock */,
 				97D1D1741A0B1D9F00E696EF /* Screenshot.png */,
 				97631F261987730F007CA49A /* Ultimate Whiteboard */,
 				97631F3F1987730F007CA49A /* Ultimate WhiteboardTests */,
@@ -290,6 +296,8 @@
 			files = (
 				97631F2B1987730F007CA49A /* InfoPlist.strings in Resources */,
 				97631F331987730F007CA49A /* Images.xcassets in Resources */,
+				973A10EA1A0B29D10000DD90 /* Podfile.lock in Resources */,
+				973A10E91A0B29D10000DD90 /* Podfile in Resources */,
 				97D1D1751A0B1D9F00E696EF /* Screenshot.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
