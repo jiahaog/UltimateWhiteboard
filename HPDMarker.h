@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+
+// ENUM to classify type of marker
 typedef NS_ENUM(char, markerType) {
     HPDMarkerTypeBluePlayer,
     HPDMarkerTypeRedPlayer,
