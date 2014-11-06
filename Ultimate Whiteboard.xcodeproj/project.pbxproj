@@ -23,6 +23,7 @@
 		97631F55198773B0007CA49A /* HPDFieldView.m in Sources */ = {isa = PBXBuildFile; fileRef = 97631F54198773B0007CA49A /* HPDFieldView.m */; };
 		97631F58198773CB007CA49A /* HPDFieldViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 97631F57198773CB007CA49A /* HPDFieldViewController.m */; };
 		97916E3E19C734F100803172 /* HPDPlaybackScrubberView.m in Sources */ = {isa = PBXBuildFile; fileRef = 97916E3D19C734F100803172 /* HPDPlaybackScrubberView.m */; };
+		97D1D1751A0B1D9F00E696EF /* Screenshot.png in Resources */ = {isa = PBXBuildFile; fileRef = 97D1D1741A0B1D9F00E696EF /* Screenshot.png */; };
 		97D9FAE719C5802F00930D79 /* HPDMarkerStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 97D9FAE619C5802F00930D79 /* HPDMarkerStore.m */; };
 		97F76AC71988820B00A8B450 /* HPDMarker.m in Sources */ = {isa = PBXBuildFile; fileRef = 97F76AC61988820B00A8B450 /* HPDMarker.m */; };
 		97F76ACA1988A28600A8B450 /* HPDFieldBackground.m in Sources */ = {isa = PBXBuildFile; fileRef = 97F76AC91988A28600A8B450 /* HPDFieldBackground.m */; };
@@ -63,10 +64,11 @@
 		97631F57198773CB007CA49A /* HPDFieldViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPDFieldViewController.m; sourceTree = "<group>"; };
 		97916E3C19C734F100803172 /* HPDPlaybackScrubberView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPDPlaybackScrubberView.h; sourceTree = "<group>"; };
 		97916E3D19C734F100803172 /* HPDPlaybackScrubberView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPDPlaybackScrubberView.m; sourceTree = "<group>"; };
+		97D1D1741A0B1D9F00E696EF /* Screenshot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Screenshot.png; sourceTree = "<group>"; };
 		97D9FAE519C5802F00930D79 /* HPDMarkerStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPDMarkerStore.h; sourceTree = "<group>"; };
 		97D9FAE619C5802F00930D79 /* HPDMarkerStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPDMarkerStore.m; sourceTree = "<group>"; };
-		97F76AC51988820B00A8B450 /* HPDMarker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HPDMarker.h; path = ../HPDMarker.h; sourceTree = "<group>"; };
-		97F76AC61988820B00A8B450 /* HPDMarker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HPDMarker.m; path = ../HPDMarker.m; sourceTree = "<group>"; };
+		97F76AC51988820B00A8B450 /* HPDMarker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPDMarker.h; sourceTree = "<group>"; };
+		97F76AC61988820B00A8B450 /* HPDMarker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPDMarker.m; sourceTree = "<group>"; };
 		97F76AC81988A28600A8B450 /* HPDFieldBackground.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPDFieldBackground.h; sourceTree = "<group>"; };
 		97F76AC91988A28600A8B450 /* HPDFieldBackground.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPDFieldBackground.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -99,6 +101,7 @@
 		97631F141987730F007CA49A = {
 			isa = PBXGroup;
 			children = (
+				97D1D1741A0B1D9F00E696EF /* Screenshot.png */,
 				97631F261987730F007CA49A /* Ultimate Whiteboard */,
 				97631F3F1987730F007CA49A /* Ultimate WhiteboardTests */,
 				97631F1F1987730F007CA49A /* Frameworks */,
@@ -287,6 +290,7 @@
 			files = (
 				97631F2B1987730F007CA49A /* InfoPlist.strings in Resources */,
 				97631F331987730F007CA49A /* Images.xcassets in Resources */,
+				97D1D1751A0B1D9F00E696EF /* Screenshot.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
