@@ -5,6 +5,9 @@ Animations made with [Facebook's Pop animation framework](https://github.com/fac
 
 Compatible with iOS 7.x - 8.1
 
+![Alt text](/Screenshot.png)
+
+
 ## Functions
 * Two finger pinch to select and manipulate multiple markers
 * Toggle between built in formations
