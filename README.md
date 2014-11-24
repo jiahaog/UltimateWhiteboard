@@ -16,11 +16,11 @@ Compatible with iOS 7.x - 8.1
 
 ## Getting Started
 1. Clone the repo
-2. With [cocoapods](http://cocoapods.org) installed, run `pod install` from the cloned folder
+2. With [cocoapods](http://cocoapods.org) installed, run `pod install` from the cloned folder. Run `pod setup` before running `pod install` if it returns an error.
 3. Open `Ultimate Whiteboard.xcworkspace` in XCode
 4. Run the project
 
-## User Interface Considerations
+## UX Considerations
 The markers will animate themselves a few points up from the original `touches` location when touched, so that the user's finger does not obstruct the display of the marker.
 
 ## Work in progress
