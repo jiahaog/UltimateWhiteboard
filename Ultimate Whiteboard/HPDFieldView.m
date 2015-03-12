@@ -13,6 +13,7 @@
 #import "HPDFieldBackground.h"
 #import "HPDMarkerStore.h"
 #import "HPDPlaybackScrubberView.h"
+#import "UIColor+FlatUIColors.h"
 
 @interface HPDFieldView ()
 
@@ -48,6 +49,13 @@
 @property (nonatomic) CGFloat touchoffset; // Offset for touches so that touched markers are not beneath the finger
 @property (nonatomic) CGFloat keyframeDuration;
 
+// Color constant
+@property (nonatomic) UIColor *menuBarColor;
+@property (nonatomic) UIColor *buttonTintColor;
+
+// Menu Constant
+@property (nonatomic) CGFloat menuIconsize;
+
 
 @end
 
@@ -65,6 +73,11 @@
         _touchoffset = 30;
         _keyframeDuration = 1; // sets time interval per keyframe animation
         
+        // color constants
+        self.menuBarColor = [UIColor clearColor];
+        self.buttonTintColor = [UIColor colorWithRed:236.0/255 green:240.0/255 blue:241.0/255 alpha:1.0];
+        
+        _menuIconsize = 40;
         // Need this to show field background
         self.opaque = NO;
         
@@ -76,8 +89,6 @@
         self.largestZposition = 0;
         
         [self initMarkers];
-        
-
         
         UIPinchGestureRecognizer *pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self
                                                                                               action:@selector(pinch:)];
@@ -91,11 +102,25 @@
         twoFingerTapRecognizer.cancelsTouchesInView = YES;
         [self addGestureRecognizer:twoFingerTapRecognizer];
 
-        UIButton *buttonToShowControlBar = [[UIButton alloc] initWithFrame:CGRectMake(self.bounds.size.width - 50, 0, 50, 50)];
-        buttonToShowControlBar.backgroundColor = [UIColor orangeColor];
+        
+        // Menu bar button
+//        UIImageView *buttonToShowControlBar = [[UIImageView alloc] initWithFrame:CGRectMake(self.bounds.size.width - 50, self.bounds.size.height-50, 50, 50)];
+        
+        
+
+        
+        UIButton *buttonToShowControlBar = [[UIButton alloc] initWithFrame:CGRectMake(self.bounds.size.width - self.menuIconsize, self.bounds.size.height-self.menuIconsize, self.menuIconsize, self.menuIconsize)];
+
+        
+        UIImage *menuImage = [[UIImage imageNamed:@"menuIcon"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        
+        [buttonToShowControlBar setTintColor:self.buttonTintColor];
+        [buttonToShowControlBar setImage:menuImage forState:UIControlStateNormal];
+        buttonToShowControlBar.alpha = 0.8;
+        buttonToShowControlBar.backgroundColor = [UIColor wetAsphaltColor];
         [buttonToShowControlBar addTarget:self action:@selector(presentControlBar) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:buttonToShowControlBar];
-     
+
         
         
     }
@@ -437,19 +462,24 @@
 {
     
     CGPoint positionOutsideScreen = CGPointMake(0, self.bounds.size.height + 100);
-    CGFloat controlBarHeight = 50;
-    
-
+    CGFloat controlBarHeight = self.menuIconsize;
     
     if (!self.controlBar) {
-        self.controlBar = [[UIView alloc] initWithFrame:CGRectMake(0, positionOutsideScreen.y, self.bounds.size.width, controlBarHeight)];
-        self.controlBar.backgroundColor = [UIColor grayColor];
-        self.controlBar.alpha = 0.7;
+        self.controlBar = [[UIView alloc] initWithFrame:CGRectMake(0, positionOutsideScreen.y, self.bounds.size.width - controlBarHeight, controlBarHeight)];
+
+        self.controlBar.backgroundColor = self.menuBarColor;
+//        self.controlBar.alpha = 0.9;
         [self addSubview:self.controlBar];
         
-        UIButton *button1 = [[UIButton alloc] initWithFrame:CGRectMake(10, 0, 50, 50)];
-        button1.backgroundColor = [UIColor orangeColor];
+        UIButton *button1 = [[UIButton alloc] initWithFrame:CGRectMake(35, 0, controlBarHeight, controlBarHeight)];
+        button1.backgroundColor = [UIColor sunFlowerColor];
+
+        UIImage *toggleIcon = [[UIImage imageNamed:@"toggleIcon"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [button1 setTintColor:self.buttonTintColor];
+        [button1 setImage:toggleIcon forState:UIControlStateNormal];
         [button1 addTarget:self action:@selector(togglePlayerPositions) forControlEvents:UIControlEventTouchUpInside];
+        
+        
         [self.controlBar addSubview:button1];
         
 //        UIButton *button2 = [[UIButton alloc] initWithFrame:CGRectMake(60, 10, 50, 50)];
@@ -459,31 +489,45 @@
         
         
         // Buttons for animation
-        UIButton *button3 = [[UIButton alloc] initWithFrame:CGRectMake(110, 0, 50, controlBarHeight)];
-        button3.backgroundColor = [UIColor blueColor];
+        UIButton *button3 = [[UIButton alloc] initWithFrame:CGRectMake(85, 0, controlBarHeight, controlBarHeight)];
+        button3.backgroundColor = [UIColor carrotColor];
+        UIImage *recordIcon = [[UIImage imageNamed:@"recordIcon"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [button3 setTintColor:self.buttonTintColor];
+        [button3 setImage:recordIcon forState:UIControlStateNormal];
         [button3 addTarget:self action:@selector(addKeyframe) forControlEvents:UIControlEventTouchUpInside];
         [self.controlBar addSubview:button3];
         
-        UIButton *button4 = [[UIButton alloc] initWithFrame:CGRectMake(160, 0, 50, controlBarHeight)];
-        button4.backgroundColor = [UIColor greenColor];
+        
+        
+        
+        UIButton *button4 = [[UIButton alloc] initWithFrame:CGRectMake(135, 0, controlBarHeight, controlBarHeight)];
+        button4.backgroundColor = [UIColor belizeHoleColor];
+        UIImage *playImage = [[UIImage imageNamed:@"playIcon"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [button4 setTintColor:self.buttonTintColor];
+        [button4 setImage:playImage forState:UIControlStateNormal];
         [button4 addTarget:self action:@selector(playbackFullAnimation) forControlEvents:UIControlEventTouchUpInside];
         [self.controlBar addSubview:button4];
         
-        UIButton *button5 = [[UIButton alloc] initWithFrame:CGRectMake(210, 0, 50, controlBarHeight)];
-        button5.backgroundColor = [UIColor redColor];
+        
+        
+        UIButton *button5 = [[UIButton alloc] initWithFrame:CGRectMake(185, 0, controlBarHeight, controlBarHeight)];
+        button5.backgroundColor = [UIColor alizarinColor];
+        UIImage *deleteImage = [[UIImage imageNamed:@"deleteIcon"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [button5 setTintColor:self.buttonTintColor];
+        [button5 setImage:deleteImage forState:UIControlStateNormal];
         [button5 addTarget:self action:@selector(clearKeyframes) forControlEvents:UIControlEventTouchUpInside];
         [self.controlBar addSubview:button5];
         
         POPSpringAnimation *animation = [POPSpringAnimation animation];
         animation.property = [POPAnimatableProperty propertyWithName:kPOPViewCenter];
-        animation.toValue = [NSValue valueWithCGPoint:CGPointMake(self.bounds.size.width/2.0, self.bounds.size.height-controlBarHeight/2.0)];
+        animation.toValue = [NSValue valueWithCGPoint:CGPointMake(self.bounds.size.width/2.0 - controlBarHeight/2.0, self.bounds.size.height-controlBarHeight/2.0)];
         [self.controlBar pop_addAnimation:animation forKey:nil];
         
         
     } else {
         POPSpringAnimation *animation = [POPSpringAnimation animation];
         animation.property = [POPAnimatableProperty propertyWithName:kPOPViewCenter];
-        animation.toValue = [NSValue valueWithCGPoint:CGPointMake(self.bounds.size.width/2.0, positionOutsideScreen.y)];
+        animation.toValue = [NSValue valueWithCGPoint:CGPointMake(self.bounds.size.width/2.0 - controlBarHeight/2.0, positionOutsideScreen.y)];
         [self.controlBar pop_addAnimation:animation forKey:nil];
 
         self.controlBar = nil;
@@ -545,7 +589,7 @@
 
 - (HPDMarker *)markerAtPoint:(CGPoint)point
 {
-    float touchThreshold = 15;
+    float touchThreshold = 18;
     for (HPDMarker *marker in self.allMarkers) {
         CGPoint markerPosition = marker.markerPosition;
         if (hypot(point.x - markerPosition.x, point.y - markerPosition.y) < touchThreshold) {
