@@ -72,7 +72,7 @@
     CGPoint brickPositionBottom = CGPointMake(brickPositionX, fieldBounds.origin.y + fieldBounds.size.height/110.0*(23+64-18));
     
     NSArray *brickPosition = [NSArray arrayWithObjects:[NSValue valueWithCGPoint:brickPositionTop], [NSValue valueWithCGPoint:brickPositionBottom], nil];
-    CGFloat brickRadius = lineWidth;
+    CGFloat brickRadius = lineWidth/2.0;
     
     for (NSValue *pointNSValue in brickPosition) {
         CGPoint point = [pointNSValue CGPointValue];
