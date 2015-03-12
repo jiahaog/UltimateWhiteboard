@@ -71,6 +71,7 @@
 // Tracks if control bar is displayed
 @property (nonatomic) BOOL controlBarIsDisplayed;
 
+
 @end
 
 @implementation HPDFieldView
@@ -101,6 +102,7 @@
         
         // initialize variables
         self.largestZposition = 0;
+        self.tutorialState = 999;
         
         [self initMarkers];
         
@@ -111,10 +113,11 @@
         UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tap)];
         [self addGestureRecognizer:tapRecognizer];
 
-        UITapGestureRecognizer *twoFingerTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(presentControlBar)];
-        twoFingerTapRecognizer.numberOfTouchesRequired = 2;
-        twoFingerTapRecognizer.cancelsTouchesInView = YES;
-        [self addGestureRecognizer:twoFingerTapRecognizer];
+        
+//        UITapGestureRecognizer *twoFingerTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(presentControlBar)];
+//        twoFingerTapRecognizer.numberOfTouchesRequired = 2;
+//        twoFingerTapRecognizer.cancelsTouchesInView = YES;
+//        [self addGestureRecognizer:twoFingerTapRecognizer];
 
         
         // Menu bar button
@@ -133,7 +136,12 @@
         [self addSubview:self.menuButton];
 
         self.tutorialButton = [[UIButton alloc] initWithFrame:CGRectMake(self.bounds.size.width - self.menuIconsize, 0, self.menuIconsize, self.menuIconsize)];
-        [self.tutorialButton setBackgroundColor:[UIColor amethystColor]];
+        UIImage *tutorialImage = [[UIImage imageNamed:@"tutorialIcon"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [self.tutorialButton setTintColor:self.buttonTintColor];
+        self.tutorialButton.alpha = 0.8;
+        [self.tutorialButton setImage:tutorialImage forState:UIControlStateNormal];
+
+        [self.tutorialButton setBackgroundColor:[UIColor wetAsphaltColor]];
         [self.tutorialButton addTarget:self action:@selector(startTutorial) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:self.tutorialButton];
         
@@ -301,6 +309,8 @@
     if (self.tutorialState == 3) {
         [self nextTutorialState];
     }
+    
+    [self enableAddKeyframeButton];
 }
 
 #pragma mark - Touch Methods
@@ -327,7 +337,11 @@
                 self.selectedMarkers = [[NSMutableArray alloc] init];
             }
             
+            // enables the add keyframe button only if touches have begun
+            
+            [self enableAddKeyframeButton];
             // tutorial
+//            NSLog(@"tutorialstate: %d", self.tutorialState);
             if (self.tutorialState == 0) {
                 self.tutorialMovesCounter += 1;
                 
@@ -351,6 +365,8 @@
     }
     
 }
+
+
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
@@ -376,9 +392,11 @@
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
+//        NSLog(@"Touches ended");
     for (HPDMarker *marker in self.selectedMarkers) {
         marker.markerPosition = marker.markerCALayer.position;
     }
+
     [self deselectMarkers];
     
     if (self.tutorialState == 1) {
@@ -395,6 +413,7 @@
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
+//    NSLog(@"Touches cancelled");
     [self deselectMarkers];
 }
 
@@ -493,6 +512,7 @@
 
 - (void)tap
 {
+//    NSLog(@"Tap");
     [self deselectMarkers];
 }
 
@@ -529,6 +549,11 @@
         [self.addKeyframeButton setTintColor:self.buttonTintColor];
         [self.addKeyframeButton setImage:recordIcon forState:UIControlStateNormal];
         [self.addKeyframeButton addTarget:self action:@selector(addKeyframe) forControlEvents:UIControlEventTouchUpInside];
+        
+        // initial state of addkeyframe button is disabled until touches have been made
+        [self disableAddKeyframeButton];
+        
+        
         [self.controlBar addSubview:self.addKeyframeButton];
         
         self.playButton = [[UIButton alloc] initWithFrame:CGRectMake(135, 0, controlBarHeight, controlBarHeight)];
@@ -557,6 +582,10 @@
     CGPoint positionOutsideScreen = CGPointMake(0, self.bounds.size.height + 100);
     CGFloat controlBarHeight = self.menuIconsize;
     
+    if (self.tutorialState == 7) {
+        [self nextTutorialState];
+    }
+    
     if (!self.controlBarIsDisplayed) {
         
         POPSpringAnimation *animation = [POPSpringAnimation animation];
@@ -564,7 +593,7 @@
         animation.toValue = [NSValue valueWithCGPoint:CGPointMake(self.bounds.size.width/2.0 - controlBarHeight/2.0, self.bounds.size.height-controlBarHeight/2.0)];
         [self.controlBar pop_addAnimation:animation forKey:nil];
         
-        if (self.tutorialState == 2) {
+        if (self.tutorialState == 2 ) {
             [self nextTutorialState];
         }
         
@@ -617,6 +646,7 @@
     UIView *labelView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, labelText.frame.size.width + padding, labelText.frame.size.height + padding)];
     labelView.backgroundColor = [UIColor blackColor];
     labelView.alpha = 0.7;
+    [self bringSubviewToFront:labelView];
     labelView.layer.cornerRadius = 3;
     [labelView addSubview:labelText];
     labelText.center = labelView.center;
@@ -673,7 +703,21 @@
 
 }
 
+- (void)disableAddKeyframeButton {
+    self.addKeyframeButton.enabled = false;
+}
 
+- (void)disablePlayButton {
+    self.playButton.enabled = false;
+}
+
+- (void)enablePlayButton {
+    self.playButton.enabled = true;
+}
+
+- (void)enableAddKeyframeButton {
+    self.addKeyframeButton.enabled = true;
+}
 #pragma mark - Helper Selection Methods
 
 - (HPDMarker *)markerAtPoint:(CGPoint)point
@@ -691,7 +735,8 @@
 - (void)deselectMarkers
 {
     if (self.selectedMarkers) {
-        for (HPDMarker *marker in self.selectedMarkers) {
+//        NSLog(@"deselecting");
+        for (HPDMarker *marker in self.allMarkers) {
             [self animateMarkerSelected:marker selected:NO offsetMarker:NO];
         }
     }
@@ -712,13 +757,33 @@
     // state 6 delete
     // state 7 close menu
     
+    
+    if (self.tutorialState <= 7) {
+        self.tutorialState = 999;
+        [self clearNotification];
+        [self disableButtonsExcept:-1];
+        return;
+    }
+    
+    
     self.tutorialState = -1;
+    self.tutorialMovesCounter = 0;
 //    self.tutorialState = 1;
+    
+    if (self.controlBarIsDisplayed) {
+        // hides the control bar
+        [self presentControlBar];
+    }
+    
     [self nextTutorialState];
 }
 
 - (void)doTutorialWithState:(int)index
 {
+    
+    
+    CGFloat margin = 10;
+    
     if (index == 0) {
         [self presentNotification:@"Drag a marker to move" duration:0];
         [self disableButtonsExcept:0];
@@ -728,12 +793,11 @@
         [self disableButtonsExcept:0];
     } else if (index == 2) {
         
-        CGFloat margin = 10;
         NSString *openMenuString = @"Open Menu";
         CGSize labelSize = [self getSizeOfNotificationForText:openMenuString];
         
 
-        [self presentNotification:@"Open Menu"
+        [self presentNotification:openMenuString
                          location:CGPointMake(
                                               self.bounds.size.width - labelSize.width/2.0 - margin,
                                               self.bounds.size.height - self.menuIconsize - labelSize.height/2.0 - margin
@@ -742,7 +806,7 @@
         [self disableButtonsExcept:1];
     } else if (index == 3) {
         
-        CGFloat margin = 10;
+
         NSString *toggleFormationString = @"Toggle formations";
         CGSize labelSize = [self getSizeOfNotificationForText:toggleFormationString];
         
@@ -757,15 +821,51 @@
         
     } else if (index == 4) {
         NSString *addKeyframeString = @"Add a keyframe";
-        [self presentNotification:addKeyframeString duration:0];
+        
+
+        CGSize labelSize = [self getSizeOfNotificationForText:addKeyframeString];
+        CGPoint location = CGPointMake(self.menuIconsize + labelSize.width/2.0 + margin,
+                                       self.bounds.size.height - self.menuIconsize - labelSize.height/2.0 - margin);
+        
+        [self presentNotification:addKeyframeString location:location duration:0];
         [self disableButtonsExcept:3];
     } else if (index == 5) {
+        NSString *pressPlayString = @"Press play";
         
-        [self presentNotification:@"Press play" duration:0];
+        CGSize labelSize = [self getSizeOfNotificationForText:pressPlayString];
+        CGPoint location = CGPointMake(self.menuIconsize*3+ labelSize.width/2.0,
+                                       self.bounds.size.height - self.menuIconsize - labelSize.height/2.0 - margin);
+        
+        
+        
+        [self presentNotification:@"Press play" location:location duration:0];
         [self disableButtonsExcept:4];
     } else if (index == 6) {
-        [self presentNotification:@"Press to clear frames" duration:0];
+        NSString *clearFramesString = @"Clear frames";
+        
+        CGSize labelSize = [self getSizeOfNotificationForText:clearFramesString];
+        CGPoint location = CGPointMake(self.menuIconsize*4 + labelSize.width/2.0,
+                                       self.bounds.size.height - self.menuIconsize - labelSize.height/2.0 - margin);
+        
+        [self presentNotification:clearFramesString location:location duration:0];
         [self disableButtonsExcept:5];
+    } else if (index == 7) {
+        NSString *closeMenuString = @"Close Menu";
+        CGSize labelSize = [self getSizeOfNotificationForText:closeMenuString];
+        
+        
+        [self presentNotification:closeMenuString
+                         location:CGPointMake(
+                                              self.bounds.size.width - labelSize.width/2.0 - margin,
+                                              self.bounds.size.height - self.menuIconsize - labelSize.height/2.0 - margin
+                                              )
+                         duration:0];
+        [self disableButtonsExcept:1];
+    } else if (index == 8) {
+        // set it to a number outside of the tutorial states
+        self.tutorialState = 999;
+        [self presentNotification:@"Tutorial Complete!" duration:1.0];
+        [self disableButtonsExcept:-1];
     }
 
 }
@@ -774,19 +874,13 @@
 {
     self.tutorialState += 1;
     self.tutorialMovesCounter = 0;
-    NSLog(@"%d", self.tutorialState);
+//    NSLog(@"%d", self.tutorialState);
     [self clearNotification];
     [self doTutorialWithState:self.tutorialState];
 }
 
-- (void)tutorialComplete
-{
-    // set it to a number outside of the tutorial states
-    self.tutorialState = 999;
-    [self presentNotification:@"Tutorial Complete!" duration:1.0];
-    [self disableButtonsExcept:0];
-}
-
+// Put a zero to disable all buttons
+// Put -1 to enable all buttons
 - (void)disableButtonsExcept:(int)buttonIndex {
     
     // 0 - tutorial button
@@ -809,7 +903,7 @@
     for (int i = 1; i < buttonArray.count; i++) {
         
         UIButton *button = [buttonArray objectAtIndex:i];
-        if (i == buttonIndex) {
+        if (i == buttonIndex || buttonIndex < 0) {
             button.enabled = true;
         } else {
             button.enabled = false;
@@ -842,7 +936,7 @@
     POPSpringAnimation *springAnimation = [POPSpringAnimation animation];
     springAnimation.property = [POPAnimatableProperty propertyWithName:kPOPLayerScaleXY];
     springAnimation.springBounciness = 20;
-    springAnimation.springSpeed = 3;
+    springAnimation.springSpeed = 50;
     springAnimation.toValue = [NSValue valueWithCGSize:CGSizeMake(scaleFactor, scaleFactor)];
     
 
@@ -882,6 +976,9 @@
 
 - (void)addKeyframe
 {
+    
+    
+    
     self.animationMode = YES;
     for (HPDMarker *marker in self.allMarkers) {
         [marker addKeyframe];
@@ -920,7 +1017,13 @@
     
 
     
+    [self disableAddKeyframeButton];
     
+    if (self.tutorialState > 10) {
+    
+        [self enablePlayButton];
+    }
+
 
 }
 
@@ -1005,11 +1108,12 @@
     
     // Add notification on screen to inform user of action
     if (self.tutorialState == 6) {
-        [self tutorialComplete];
+        [self nextTutorialState];
     } else {
         [self presentNotification:@"Keyframes Cleared"];
     }
 
+    [self disablePlayButton];
     
 }
 
