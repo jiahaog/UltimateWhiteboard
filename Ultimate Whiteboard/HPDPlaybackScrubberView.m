@@ -124,7 +124,7 @@
 
     // Cleanup
     self.numberOfKeyframes += 1;
-    NSLog(@"%i", self.numberOfKeyframes);
+    NSLog(@"Keyframes: %i", self.numberOfKeyframes);
     [self.keyframePointArray addObject:pointView];
     [self scrubberPlaybackFromKeyframe:NO toKeyframe:1 duration:NO beginTime:NO]; // Removes scrubber if keyframe is added after scrubber is visible
 }

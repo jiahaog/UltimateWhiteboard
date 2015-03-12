@@ -38,6 +38,14 @@
 @property (nonatomic) HPDPlaybackScrubberView *playbackScrubberView;
 @property (nonatomic) UIView *notificationForUser;
 
+// Property to hold buttons
+@property (nonatomic) UIButton *tutorialButton;
+@property (nonatomic) UIButton *menuButton;
+@property (nonatomic) UIButton *toggleFormationButton;
+@property (nonatomic) UIButton *addKeyframeButton;
+@property (nonatomic) UIButton *playButton;
+@property (nonatomic) UIButton *deleteKeyframesButton;
+
 // Property to track keyframes
 @property (nonatomic) int currentKeyframe;
 
@@ -56,6 +64,12 @@
 // Menu Constant
 @property (nonatomic) CGFloat menuIconsize;
 
+// Tutorial counter
+@property (nonatomic) int tutorialState;
+@property (nonatomic) int tutorialMovesCounter;
+
+// Tracks if control bar is displayed
+@property (nonatomic) BOOL controlBarIsDisplayed;
 
 @end
 
@@ -107,21 +121,21 @@
 //        UIImageView *buttonToShowControlBar = [[UIImageView alloc] initWithFrame:CGRectMake(self.bounds.size.width - 50, self.bounds.size.height-50, 50, 50)];
         
         
-
+        [self initializeControlBar];
         
-        UIButton *buttonToShowControlBar = [[UIButton alloc] initWithFrame:CGRectMake(self.bounds.size.width - self.menuIconsize, self.bounds.size.height-self.menuIconsize, self.menuIconsize, self.menuIconsize)];
-
-        
+        self.menuButton = [[UIButton alloc] initWithFrame:CGRectMake(self.bounds.size.width - self.menuIconsize, self.bounds.size.height-self.menuIconsize, self.menuIconsize, self.menuIconsize)];
         UIImage *menuImage = [[UIImage imageNamed:@"menuIcon"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        
-        [buttonToShowControlBar setTintColor:self.buttonTintColor];
-        [buttonToShowControlBar setImage:menuImage forState:UIControlStateNormal];
-        buttonToShowControlBar.alpha = 0.8;
-        buttonToShowControlBar.backgroundColor = [UIColor wetAsphaltColor];
-        [buttonToShowControlBar addTarget:self action:@selector(presentControlBar) forControlEvents:UIControlEventTouchUpInside];
-        [self addSubview:buttonToShowControlBar];
+        [self.menuButton setTintColor:self.buttonTintColor];
+        [self.menuButton setImage:menuImage forState:UIControlStateNormal];
+        self.menuButton.alpha = 0.8;
+        self.menuButton.backgroundColor = [UIColor wetAsphaltColor];
+        [self.menuButton addTarget:self action:@selector(presentControlBar) forControlEvents:UIControlEventTouchUpInside];
+        [self addSubview:self.menuButton];
 
-        
+        self.tutorialButton = [[UIButton alloc] initWithFrame:CGRectMake(self.bounds.size.width - self.menuIconsize, 0, self.menuIconsize, self.menuIconsize)];
+        [self.tutorialButton setBackgroundColor:[UIColor amethystColor]];
+        [self.tutorialButton addTarget:self action:@selector(startTutorial) forControlEvents:UIControlEventTouchUpInside];
+        [self addSubview:self.tutorialButton];
         
     }
     return self;
@@ -284,6 +298,9 @@
         previousPosition = 1;
     }
     
+    if (self.tutorialState == 3) {
+        [self nextTutorialState];
+    }
 }
 
 #pragma mark - Touch Methods
@@ -310,6 +327,23 @@
                 self.selectedMarkers = [[NSMutableArray alloc] init];
             }
             
+            // tutorial
+            if (self.tutorialState == 0) {
+                self.tutorialMovesCounter += 1;
+                
+                if (self.tutorialMovesCounter == 3) {
+                    [self nextTutorialState];
+                }
+            } else if (self.tutorialState == 4) {
+                
+                if (self.tutorialMovesCounter %2 != 0) {
+                    [self presentNotification:@"Add another keyframe" duration:0];
+                    self.tutorialMovesCounter += 1;
+                }
+                
+                
+            }
+            
             [self.selectedMarkers addObject:selectedMarker];
         }
         
@@ -317,8 +351,6 @@
     }
     
 }
-
-
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
@@ -348,6 +380,13 @@
         marker.markerPosition = marker.markerCALayer.position;
     }
     [self deselectMarkers];
+    
+    if (self.tutorialState == 1) {
+        if (self.tutorialMovesCounter > 0) {
+            [self nextTutorialState];
+        }
+    }
+
     
     // Make disc on top of everything
     self.discMarker.markerCALayer.zPosition = self.largestZposition;
@@ -444,6 +483,10 @@
         if (CGRectContainsPoint(selectionBox, marker.markerPosition)) {
             [self animateMarkerSelected:marker selected:YES offsetMarker:NO];
             [self.selectedMarkers addObject:marker];
+            
+            if (self.tutorialState == 1) {
+                self.tutorialMovesCounter += 1;
+            }
         }
     }
 }
@@ -451,97 +494,117 @@
 - (void)tap
 {
     [self deselectMarkers];
-
-
 }
 
 
 #pragma mark - UIView Methods
 
-- (void)presentControlBar
+- (void)initializeControlBar
 {
-    
     CGPoint positionOutsideScreen = CGPointMake(0, self.bounds.size.height + 100);
     CGFloat controlBarHeight = self.menuIconsize;
     
     if (!self.controlBar) {
         self.controlBar = [[UIView alloc] initWithFrame:CGRectMake(0, positionOutsideScreen.y, self.bounds.size.width - controlBarHeight, controlBarHeight)];
-
+        
         self.controlBar.backgroundColor = self.menuBarColor;
-//        self.controlBar.alpha = 0.9;
+        //        self.controlBar.alpha = 0.9;
         [self addSubview:self.controlBar];
         
-        UIButton *button1 = [[UIButton alloc] initWithFrame:CGRectMake(35, 0, controlBarHeight, controlBarHeight)];
-        button1.backgroundColor = [UIColor sunFlowerColor];
-
+        self.toggleFormationButton = [[UIButton alloc] initWithFrame:CGRectMake(35, 0, controlBarHeight, controlBarHeight)];
+        self.toggleFormationButton.backgroundColor = [UIColor sunFlowerColor];
+        
         UIImage *toggleIcon = [[UIImage imageNamed:@"toggleIcon"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        [button1 setTintColor:self.buttonTintColor];
-        [button1 setImage:toggleIcon forState:UIControlStateNormal];
-        [button1 addTarget:self action:@selector(togglePlayerPositions) forControlEvents:UIControlEventTouchUpInside];
+        [self.toggleFormationButton setTintColor:self.buttonTintColor];
+        [self.toggleFormationButton setImage:toggleIcon forState:UIControlStateNormal];
+        [self.toggleFormationButton addTarget:self action:@selector(togglePlayerPositions) forControlEvents:UIControlEventTouchUpInside];
         
         
-        [self.controlBar addSubview:button1];
-        
-//        UIButton *button2 = [[UIButton alloc] initWithFrame:CGRectMake(60, 10, 50, 50)];
-//        button2.backgroundColor = [UIColor purpleColor];
-//        [button2 addTarget:self action:@selector(playerPositionVerticalStack) forControlEvents:UIControlEventTouchUpInside];
-//        [self.controlBar addSubview:button2];
-        
+        [self.controlBar addSubview:self.toggleFormationButton];
         
         // Buttons for animation
-        UIButton *button3 = [[UIButton alloc] initWithFrame:CGRectMake(85, 0, controlBarHeight, controlBarHeight)];
-        button3.backgroundColor = [UIColor carrotColor];
+        self.addKeyframeButton = [[UIButton alloc] initWithFrame:CGRectMake(85, 0, controlBarHeight, controlBarHeight)];
+        self.addKeyframeButton.backgroundColor = [UIColor carrotColor];
         UIImage *recordIcon = [[UIImage imageNamed:@"recordIcon"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        [button3 setTintColor:self.buttonTintColor];
-        [button3 setImage:recordIcon forState:UIControlStateNormal];
-        [button3 addTarget:self action:@selector(addKeyframe) forControlEvents:UIControlEventTouchUpInside];
-        [self.controlBar addSubview:button3];
+        [self.addKeyframeButton setTintColor:self.buttonTintColor];
+        [self.addKeyframeButton setImage:recordIcon forState:UIControlStateNormal];
+        [self.addKeyframeButton addTarget:self action:@selector(addKeyframe) forControlEvents:UIControlEventTouchUpInside];
+        [self.controlBar addSubview:self.addKeyframeButton];
         
-        
-        
-        
-        UIButton *button4 = [[UIButton alloc] initWithFrame:CGRectMake(135, 0, controlBarHeight, controlBarHeight)];
-        button4.backgroundColor = [UIColor belizeHoleColor];
+        self.playButton = [[UIButton alloc] initWithFrame:CGRectMake(135, 0, controlBarHeight, controlBarHeight)];
+        self.playButton.backgroundColor = [UIColor belizeHoleColor];
         UIImage *playImage = [[UIImage imageNamed:@"playIcon"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        [button4 setTintColor:self.buttonTintColor];
-        [button4 setImage:playImage forState:UIControlStateNormal];
-        [button4 addTarget:self action:@selector(playbackFullAnimation) forControlEvents:UIControlEventTouchUpInside];
-        [self.controlBar addSubview:button4];
+        [self.playButton setTintColor:self.buttonTintColor];
+        [self.playButton setImage:playImage forState:UIControlStateNormal];
+        [self.playButton addTarget:self action:@selector(playbackFullAnimation) forControlEvents:UIControlEventTouchUpInside];
+        [self.controlBar addSubview:self.playButton];
         
-        
-        
-        UIButton *button5 = [[UIButton alloc] initWithFrame:CGRectMake(185, 0, controlBarHeight, controlBarHeight)];
-        button5.backgroundColor = [UIColor alizarinColor];
+        self.deleteKeyframesButton = [[UIButton alloc] initWithFrame:CGRectMake(185, 0, controlBarHeight, controlBarHeight)];
+        self.deleteKeyframesButton.backgroundColor = [UIColor alizarinColor];
         UIImage *deleteImage = [[UIImage imageNamed:@"deleteIcon"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        [button5 setTintColor:self.buttonTintColor];
-        [button5 setImage:deleteImage forState:UIControlStateNormal];
-        [button5 addTarget:self action:@selector(clearKeyframes) forControlEvents:UIControlEventTouchUpInside];
-        [self.controlBar addSubview:button5];
+        [self.deleteKeyframesButton setTintColor:self.buttonTintColor];
+        [self.deleteKeyframesButton setImage:deleteImage forState:UIControlStateNormal];
+        [self.deleteKeyframesButton addTarget:self action:@selector(clearKeyframes) forControlEvents:UIControlEventTouchUpInside];
+        [self.controlBar addSubview:self.deleteKeyframesButton];
+        
+        self.controlBarIsDisplayed = false;
+    }
+
+}
+
+- (void)presentControlBar
+{
+    CGPoint positionOutsideScreen = CGPointMake(0, self.bounds.size.height + 100);
+    CGFloat controlBarHeight = self.menuIconsize;
+    
+    if (!self.controlBarIsDisplayed) {
         
         POPSpringAnimation *animation = [POPSpringAnimation animation];
         animation.property = [POPAnimatableProperty propertyWithName:kPOPViewCenter];
         animation.toValue = [NSValue valueWithCGPoint:CGPointMake(self.bounds.size.width/2.0 - controlBarHeight/2.0, self.bounds.size.height-controlBarHeight/2.0)];
         [self.controlBar pop_addAnimation:animation forKey:nil];
         
+        if (self.tutorialState == 2) {
+            [self nextTutorialState];
+        }
         
+        self.controlBarIsDisplayed = true;
+
     } else {
         POPSpringAnimation *animation = [POPSpringAnimation animation];
         animation.property = [POPAnimatableProperty propertyWithName:kPOPViewCenter];
         animation.toValue = [NSValue valueWithCGPoint:CGPointMake(self.bounds.size.width/2.0 - controlBarHeight/2.0, positionOutsideScreen.y)];
         [self.controlBar pop_addAnimation:animation forKey:nil];
-
-        self.controlBar = nil;
+    
+        self.controlBarIsDisplayed = false;
     }
+    
+    
+    
+}
+
+- (void)presentNotification:(NSString *)notificationText location:(CGPoint)point {
+    [self presentNotification:notificationText location:point duration:0.5];
 }
 
 - (void)presentNotification:(NSString *)notificationText
 {
+    [self presentNotification:notificationText location:CGPointMake(self.bounds.size.width/2.0, 60)];
+}
+
+- (void)presentNotification:(NSString *)notificationText duration:(CGFloat) time {
+    [self presentNotification:notificationText location:CGPointMake(self.bounds.size.width/2.0, 60) duration:time];
+}
+
+- (void)presentNotification:(NSString *)notificationText location:(CGPoint)point duration:(CGFloat)time{
+    
+    
     // Prevents overlapping notifications
     if (self.notificationForUser) {
         [self.notificationForUser removeFromSuperview];
     }
     // Options
-    CGFloat timeNotificationStaysOn = 0.5; // Time notification stays on screen
+    CGFloat timeNotificationStaysOn = time; // Time notification stays on screen
     CGFloat padding = 10;     // How much larger (extra width) the background of label is
     
     UILabel *labelText = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 10, 50)];
@@ -551,15 +614,13 @@
     labelText.alpha = 0.7;
     [labelText sizeToFit];
     
-
-    
     UIView *labelView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, labelText.frame.size.width + padding, labelText.frame.size.height + padding)];
     labelView.backgroundColor = [UIColor blackColor];
     labelView.alpha = 0.7;
     labelView.layer.cornerRadius = 3;
     [labelView addSubview:labelText];
     labelText.center = labelView.center;
-    [labelView setCenter:CGPointMake(self.bounds.size.width/2.0, 60)];
+    [labelView setCenter:point];
     
     [self addSubview:labelView];
     self.notificationForUser = labelView;
@@ -569,19 +630,47 @@
     animateIn.fromValue = @(0);
     animateIn.toValue = [NSNumber numberWithFloat:labelView.alpha];
     [labelView pop_addAnimation:animateIn forKey:nil];
-
     
     CGFloat animateInDuration = animateIn.duration;
     
+    
+    if (time != 0) {
+        POPSpringAnimation *animateOut = [POPSpringAnimation animation];
+        animateOut.property = [POPAnimatableProperty propertyWithName:kPOPViewAlpha];
+        animateOut.toValue = @(0);
+        animateOut.beginTime = CACurrentMediaTime() + animateInDuration + timeNotificationStaysOn;
+        [labelView pop_addAnimation:animateOut forKey:nil];
 
+    }
+}
+
+- (CGSize)getSizeOfNotificationForText:(NSString *)text {
+   
+    // We create a new label here with the text string and return the size of the width
+    CGFloat padding = 10;     // How much larger (extra width) the background of label is
     
-    POPSpringAnimation *animateOut = [POPSpringAnimation animation];
-    animateOut.property = [POPAnimatableProperty propertyWithName:kPOPViewAlpha];
-    animateOut.toValue = @(0);
-    animateOut.beginTime = CACurrentMediaTime() + animateInDuration + timeNotificationStaysOn;
-    [labelView pop_addAnimation:animateOut forKey:nil];
+    UILabel *labelText = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 10, 50)];
+    labelText.text = text;
+    labelText.font = [labelText.font fontWithSize:13];
+    [labelText sizeToFit];
     
+    UIView *labelView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, labelText.frame.size.width + padding, labelText.frame.size.height + padding)];
+    labelView.layer.cornerRadius = 3;
+    [labelView addSubview:labelText];
     
+    return labelView.bounds.size;
+}
+
+- (void)clearNotification
+{
+    if (self.notificationForUser) {
+        POPSpringAnimation *animateOut = [POPSpringAnimation animation];
+        animateOut.property = [POPAnimatableProperty propertyWithName:kPOPViewAlpha];
+        animateOut.toValue = @(0);
+        [self.notificationForUser pop_addAnimation:animateOut forKey:nil];
+
+    }
+
 }
 
 
@@ -610,7 +699,125 @@
     
 }
 
+#pragma mark - Tutorial Methods
 
+- (void)startTutorial
+{
+    // state 0 basic touch
+    // state 1 two finger drag
+    // state 2 open menu
+    // state 3 trigger formation
+    // state 4 add frames
+    // state 5 play animation
+    // state 6 delete
+    // state 7 close menu
+    
+    self.tutorialState = -1;
+//    self.tutorialState = 1;
+    [self nextTutorialState];
+}
+
+- (void)doTutorialWithState:(int)index
+{
+    if (index == 0) {
+        [self presentNotification:@"Drag a marker to move" duration:0];
+        [self disableButtonsExcept:0];
+        
+    } else if (index == 1) {
+        [self presentNotification:@"Use two fingers to select multiple markers" duration:0];
+        [self disableButtonsExcept:0];
+    } else if (index == 2) {
+        
+        CGFloat margin = 10;
+        NSString *openMenuString = @"Open Menu";
+        CGSize labelSize = [self getSizeOfNotificationForText:openMenuString];
+        
+
+        [self presentNotification:@"Open Menu"
+                         location:CGPointMake(
+                                              self.bounds.size.width - labelSize.width/2.0 - margin,
+                                              self.bounds.size.height - self.menuIconsize - labelSize.height/2.0 - margin
+                                              )
+                         duration:0];
+        [self disableButtonsExcept:1];
+    } else if (index == 3) {
+        
+        CGFloat margin = 10;
+        NSString *toggleFormationString = @"Toggle formations";
+        CGSize labelSize = [self getSizeOfNotificationForText:toggleFormationString];
+        
+        [self presentNotification:toggleFormationString
+                         location:CGPointMake(
+                                              labelSize.width/2.0 + margin,
+                                              self.bounds.size.height - self.menuIconsize - labelSize.height/2.0 - margin
+                                              )
+                         duration:0];
+        
+        [self disableButtonsExcept:2];
+        
+    } else if (index == 4) {
+        NSString *addKeyframeString = @"Add a keyframe";
+        [self presentNotification:addKeyframeString duration:0];
+        [self disableButtonsExcept:3];
+    } else if (index == 5) {
+        
+        [self presentNotification:@"Press play" duration:0];
+        [self disableButtonsExcept:4];
+    } else if (index == 6) {
+        [self presentNotification:@"Press to clear frames" duration:0];
+        [self disableButtonsExcept:5];
+    }
+
+}
+
+- (void)nextTutorialState
+{
+    self.tutorialState += 1;
+    self.tutorialMovesCounter = 0;
+    NSLog(@"%d", self.tutorialState);
+    [self clearNotification];
+    [self doTutorialWithState:self.tutorialState];
+}
+
+- (void)tutorialComplete
+{
+    // set it to a number outside of the tutorial states
+    self.tutorialState = 999;
+    [self presentNotification:@"Tutorial Complete!" duration:1.0];
+    [self disableButtonsExcept:0];
+}
+
+- (void)disableButtonsExcept:(int)buttonIndex {
+    
+    // 0 - tutorial button
+    // 1 - menu button
+    // 2 - formation toggle button
+    // 3 - add keyframe button
+    // 4 - play button
+    // 5 - delete button
+    
+    NSArray *buttonArray = [NSArray arrayWithObjects:
+                            self.tutorialButton,
+                            self.menuButton,
+                            self.toggleFormationButton,
+                            self.addKeyframeButton,
+                            self.playButton,
+                            self.deleteKeyframesButton,
+                            nil];
+    
+    // start index at 1 because we don't want to disable the tutorial button
+    for (int i = 1; i < buttonArray.count; i++) {
+        
+        UIButton *button = [buttonArray objectAtIndex:i];
+        if (i == buttonIndex) {
+            button.enabled = true;
+        } else {
+            button.enabled = false;
+        }
+    }
+    
+    
+}
 #pragma mark - Animation Methods
 
 // BOOLEAN selected indicates true for touches begin, and false for touches ended
@@ -697,13 +904,38 @@
     [self.playbackScrubberView newKeyframe];
     
     // Add notification on screen to inform user of action
-    [self presentNotification:@"Keyframe Added"];
+    if (self.tutorialState == 4) {
+        
+        if (self.tutorialMovesCounter == 6) {
+            [self nextTutorialState];
+        
+        } else if (self.tutorialMovesCounter %2 == 0) {
+            [self presentNotification:@"Move a marker" duration:0];
+            self.tutorialMovesCounter += 1;
+        }
+        
+    } else {
+        [self presentNotification:@"Keyframe Added"];
+    }
+    
+
+    
+    
 
 }
 
 - (void)playbackFullAnimation
 {
     [self playbackAnimationfromFrame:0 toFrame:0];
+    if (self.tutorialState == 5) {
+        if (self.tutorialMovesCounter == 0) {
+            [self presentNotification:@"Press play to playback again"  duration:0];
+            self.tutorialMovesCounter += 1;
+        } else {
+            [self nextTutorialState];
+        }
+
+    }
 }
 
 - (void)playBackForwardToNextKeyframe
@@ -753,8 +985,10 @@
     [self.playbackScrubberView scrubberPlaybackFromKeyframe:1 toKeyframe:(int)self.playbackScrubberView.numberOfKeyframes duration:self.keyframeDuration*(self.playbackScrubberView.numberOfKeyframes-1) beginTime:NO];
     
     // Add notification on screen to inform user of action
+    if (self.tutorialState != 5) {
+        [self presentNotification:@"Playing Animation"];
+    }
 
-    [self presentNotification:@"Playing Animation"];
     
 }
 
@@ -770,7 +1004,11 @@
     [self.playbackScrubberView clearKeyframes];
     
     // Add notification on screen to inform user of action
-    [self presentNotification:@"Keyframes Cleared"];
+    if (self.tutorialState == 6) {
+        [self tutorialComplete];
+    } else {
+        [self presentNotification:@"Keyframes Cleared"];
+    }
 
     
 }
