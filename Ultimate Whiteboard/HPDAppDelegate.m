@@ -23,7 +23,16 @@
     self.window.rootViewController = fieldViewController;
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
+    
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    if (![defaults objectForKey:@"firstRun"])
+        [defaults setObject:[NSDate date] forKey:@"firstRun"];
+    
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    
     return YES;
+    
+    
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application

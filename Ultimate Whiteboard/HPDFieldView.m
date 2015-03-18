@@ -145,6 +145,9 @@
         [self.tutorialButton addTarget:self action:@selector(startTutorial) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:self.tutorialButton];
         
+        
+        
+        
     }
     return self;
 }
@@ -722,7 +725,7 @@
 
 - (HPDMarker *)markerAtPoint:(CGPoint)point
 {
-    float touchThreshold = 18;
+    float touchThreshold = 23;
     for (HPDMarker *marker in self.allMarkers) {
         CGPoint markerPosition = marker.markerPosition;
         if (hypot(point.x - markerPosition.x, point.y - markerPosition.y) < touchThreshold) {
