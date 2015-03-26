@@ -148,6 +148,22 @@
         
         
         
+        
+        
+        if ([[NSUserDefaults standardUserDefaults] boolForKey:@"HasLaunchedOnce"])
+        {
+            // app already launched
+        }
+        else
+        {
+            [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"HasLaunchedOnce"];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+            // This is the first launch ever
+            [self startTutorial];
+            
+        }
+        
+        
     }
     return self;
 }
@@ -314,6 +330,11 @@
     }
     
     [self enableAddKeyframeButton];
+    
+//    UIView *testView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 200, 200)];
+//    [testView setBackgroundColor:[UIColor purpleColor]];
+//    
+//    [self addSubview:testView];
 }
 
 #pragma mark - Touch Methods
@@ -332,29 +353,37 @@
         if (selectedMarker) {
             
             //Change zposition to make selected marker on top of everything
-            self.largestZposition += 1;
-            selectedMarker.markerCALayer.zPosition = self.largestZposition;
+//            self.largestZposition += 1;
+//            selectedMarker.markerCALayer.zPosition = self.largestZposition;
             
             [self animateMarkerSelected:selectedMarker selected:YES offsetMarker:YES];
             if (!self.selectedMarkers) {
                 self.selectedMarkers = [[NSMutableArray alloc] init];
             }
             
-            // enables the add keyframe button only if touches have begun
-            
-            [self enableAddKeyframeButton];
+     
             // tutorial
 //            NSLog(@"tutorialstate: %d", self.tutorialState);
             if (self.tutorialState == 0) {
                 self.tutorialMovesCounter += 1;
                 
-                if (self.tutorialMovesCounter == 3) {
+                if (self.tutorialMovesCounter == 2) {
                     [self nextTutorialState];
                 }
             } else if (self.tutorialState == 4) {
                 
                 if (self.tutorialMovesCounter %2 != 0) {
-                    [self presentNotification:@"Add another keyframe" duration:0];
+                    
+                    NSString *addKeyframeString =@"Add another keyframe";
+                    CGFloat margin = 10;
+                    CGSize labelSize = [self getSizeOfNotificationForText:addKeyframeString];
+                    
+                    CGPoint location = CGPointMake(self.menuIconsize + labelSize.width/2.0 + margin,
+                                                   self.bounds.size.height - self.menuIconsize - labelSize.height/2.0 - margin);
+                    
+                    [self presentNotification:addKeyframeString location:location duration:0];
+
+                    
                     self.tutorialMovesCounter += 1;
                 }
                 
@@ -362,6 +391,7 @@
             }
             
             [self.selectedMarkers addObject:selectedMarker];
+            
         }
         
 
@@ -390,6 +420,8 @@
         }
         self.touchDownPosition = location;
 
+        // enables the add keyframe button only if touches have moved
+        [self enableAddKeyframeButton];
     }
 }
 
@@ -554,7 +586,7 @@
         [self.addKeyframeButton addTarget:self action:@selector(addKeyframe) forControlEvents:UIControlEventTouchUpInside];
         
         // initial state of addkeyframe button is disabled until touches have been made
-        [self disableAddKeyframeButton];
+        [self enableAddKeyframeButton];
         
         
         [self.controlBar addSubview:self.addKeyframeButton];
@@ -574,6 +606,9 @@
         [self.deleteKeyframesButton setImage:deleteImage forState:UIControlStateNormal];
         [self.deleteKeyframesButton addTarget:self action:@selector(clearKeyframes) forControlEvents:UIControlEventTouchUpInside];
         [self.controlBar addSubview:self.deleteKeyframesButton];
+        
+        [self disableDeleteKeyframeButton];
+        
         
         self.controlBarIsDisplayed = false;
     }
@@ -649,7 +684,6 @@
     UIView *labelView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, labelText.frame.size.width + padding, labelText.frame.size.height + padding)];
     labelView.backgroundColor = [UIColor blackColor];
     labelView.alpha = 0.7;
-    [self bringSubviewToFront:labelView];
     labelView.layer.cornerRadius = 3;
     [labelView addSubview:labelText];
     labelText.center = labelView.center;
@@ -721,11 +755,20 @@
 - (void)enableAddKeyframeButton {
     self.addKeyframeButton.enabled = true;
 }
+
+- (void)enableDeleteKeyframeButton {
+    self.deleteKeyframesButton.enabled = true;
+}
+
+- (void)disableDeleteKeyframeButton {
+    self.deleteKeyframesButton.enabled = false;
+}
+
 #pragma mark - Helper Selection Methods
 
 - (HPDMarker *)markerAtPoint:(CGPoint)point
 {
-    float touchThreshold = 23;
+    float touchThreshold = 30;
     for (HPDMarker *marker in self.allMarkers) {
         CGPoint markerPosition = marker.markerPosition;
         if (hypot(point.x - markerPosition.x, point.y - markerPosition.y) < touchThreshold) {
@@ -735,12 +778,15 @@
     return nil;
 }
 
+
+
 - (void)deselectMarkers
 {
     if (self.selectedMarkers) {
 //        NSLog(@"deselecting");
         for (HPDMarker *marker in self.allMarkers) {
             [self animateMarkerSelected:marker selected:NO offsetMarker:NO];
+            marker.markerCALayer.zPosition = 0;
         }
     }
     self.selectedMarkers = nil;
@@ -778,6 +824,7 @@
         [self presentControlBar];
     }
     
+    
     [self nextTutorialState];
 }
 
@@ -792,7 +839,7 @@
         [self disableButtonsExcept:0];
         
     } else if (index == 1) {
-        [self presentNotification:@"Use two fingers to select multiple markers" duration:0];
+        [self presentNotification:@"Pinch and drag to move a selection" duration:0];
         [self disableButtonsExcept:0];
     } else if (index == 2) {
         
@@ -1021,6 +1068,7 @@
 
     
     [self disableAddKeyframeButton];
+    [self enableDeleteKeyframeButton];
     
     if (self.tutorialState > 10) {
     
@@ -1117,7 +1165,8 @@
     }
 
     [self disablePlayButton];
-    
+    [self disableDeleteKeyframeButton];
+    [self enableAddKeyframeButton];
 }
 
 
