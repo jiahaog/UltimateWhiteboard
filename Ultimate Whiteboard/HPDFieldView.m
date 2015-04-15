@@ -367,7 +367,7 @@
             if (self.tutorialState == 0) {
                 self.tutorialMovesCounter += 1;
                 
-                if (self.tutorialMovesCounter == 2) {
+                if (self.tutorialMovesCounter == 1) {
                     [self nextTutorialState];
                 }
             } else if (self.tutorialState == 4) {
@@ -487,7 +487,7 @@
     }
     
     
-    CGSize rectDimensions = CGSizeMake(labs(pointA.x - pointB.x), labs(pointA.y - pointB.y));
+    CGSize rectDimensions = CGSizeMake(fabs(pointA.x - pointB.x), fabs(pointA.y - pointB.y));
     CGRect rect = CGRectMake(topLeftCorner.x, topLeftCorner.y, rectDimensions.width, rectDimensions.height);
     
     if ([gr numberOfTouches] >= 2 ) {
