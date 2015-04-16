@@ -397,6 +397,9 @@
 
     }
     
+    // enables add keyframe button if just touch without moving, as touching will trigger animation up above finger
+    [self enableAddKeyframeButton];
+    
 }
 
 
@@ -1110,7 +1113,6 @@
     if (!self.animationMode) {
         return;
     }
-    
     
     // Teleports all markers to original position
     for (HPDMarker *marker in self.allMarkers) {
